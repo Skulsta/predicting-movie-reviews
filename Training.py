@@ -5,7 +5,7 @@ from collections import Counter
 import os.path
 
 # Gets the first file from pos training folder and
-# prints the data.
+# prints the data. Also, the number of data. Which is one array.
 text_file = open("aclImdb/train/pos/0_9.txt", 'r')
 lines = text_file.readlines()
 print(lines)
@@ -17,14 +17,17 @@ print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
 
 
 # List every file in the pos training folder
+# This one might be important. We can split by underscore and retrieve the review score using regex.
 positive_reviews = os.listdir("aclImdb/train/pos")
 print(positive_reviews)
 
 
 # Counting every file in the folder
+# Making sure we get all 12500 positive reviews in the training folder.
 counter = 1
 for file in positive_reviews:
    print(counter)
    counter += 1
+
 
 
