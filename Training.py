@@ -21,13 +21,22 @@ print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
 positive_reviews = os.listdir("aclImdb/train/pos")
 print(positive_reviews)
 
+# Split every filename by underscore, then split the second half and retrieve the review score.
+counter = 1
+for file in positive_reviews:
+    splitfile = file.split("_")
+    print(splitfile[1].split(".")[0])
+
+
+
+
 
 # Counting every file in the folder
 # Making sure we get all 12500 positive reviews in the training folder.
-counter = 1
-for file in positive_reviews:
-   print(counter)
-   counter += 1
+# counter = 1
+# for file in positive_reviews:
+#   print(counter)
+#   counter += 1
 
 
 
