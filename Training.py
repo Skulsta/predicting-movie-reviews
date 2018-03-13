@@ -109,4 +109,7 @@ def all_positive_reviews():
         print(count_text(real_get_text(file_path, 1)))
 
 
+# Iterates through every file and tests everything we have so far. Comment out
 all_positive_reviews()
+
+#
