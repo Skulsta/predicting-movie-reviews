@@ -89,5 +89,24 @@ positive_counts = count_text(positive_text)
 print("Negative text sample: {0}".format(negative_text[:100]))
 print("Positive text sample: {0}".format(positive_text[:100]))
 
-positive = real_get_text("aclImdb/train/pos/0_9.txt", 1)
-print("Hopefully some text: {0}".format(positive[:100]))
+
+# Test for one positive review.
+# positive = real_get_text("aclImdb/train/pos/0_9.txt", 1)
+# negative =  real_get_text("aclImdb/train/pos/0_9.txt", -1)
+# print("Hopefully some text: {0}".format(positive[:100]))
+# print("Hopefully nothing: {0}".format(negative[:100]))
+
+
+def all_positive_reviews():
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
+        positive = real_get_text(file_path, 1)
+        negative = real_get_text(file_path, -1)
+        print("Hopefully some text: {0}".format(positive[:100]))
+        print("Hopefully nothing: {0}".format(negative[:100]))
+
+        # This counts how many times every word is repeated in the given text
+        print(count_text(real_get_text(file_path, 1)))
+
+
+all_positive_reviews()
