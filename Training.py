@@ -22,7 +22,7 @@ print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
 positive_reviews = os.listdir("aclImdb/train/pos")
 print(positive_reviews)
 
-
+# Give it the file path of a text file, and it will read the content.
 def get_real_text(file_path):
     # Some files are not encoded correctly, ignoring those who fail to satisfy us.
     file_text = open(file_path, 'r', encoding='UTF-8', errors='ignore')
@@ -32,9 +32,11 @@ def get_real_text(file_path):
     file_text.close()
 
 
+# Iterates through every review in a folder and calls the method to retrieve the content.
 def get_all_files():
-    file_path = "aclImdb/train/pos/" + file
-    get_real_text(file_path)
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
+        get_real_text(file_path)
 
 
 # Split every filename by underscore, then split the second half and retrieve the review score.
@@ -42,6 +44,22 @@ counter = 1
 for file in positive_reviews:
     splitfile = file.split("_")
     print(splitfile[1].split(".")[0])
+
+
+def get_score(review):
+    split_file = review.split("_")
+    score = split_file[1].split(".")[0]
+    if score < 5:
+        return -1
+    elif score > 6:
+        return 1
+    else:
+        return 2
+
+
+def real_get_text(reviews, score):
+    return " ".join([r[0].lower() for r in reviews if get_score() == score])
+
 
 
 def get_text(positive_reviews, score):
@@ -64,9 +82,8 @@ negative_counts = count_text(negative_text)
 # Generate word counts for positive tone.
 positive_counts = count_text(positive_text)
 
-# Test stuff
-print(negative_text)
-print(positive_text)
 
 print("Negative text sample: {0}".format(negative_text[:100]))
 print("Positive text sample: {0}".format(positive_text[:100]))
+
+real_neg = real_get_text()
