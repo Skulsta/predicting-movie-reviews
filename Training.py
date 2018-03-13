@@ -39,27 +39,30 @@ def get_all_files():
         get_real_text(file_path)
 
 
-# Split every filename by underscore, then split the second half and retrieve the review score.
-counter = 1
-for file in positive_reviews:
-    splitfile = file.split("_")
-    print(splitfile[1].split(".")[0])
-
-
+# Split filename by underscore, then split the second half and retrieve the review score.
 def get_score(review):
     split_file = review.split("_")
-    score = split_file[1].split(".")[0]
+    score = int(split_file[1].split(".")[0])
     if score < 5:
         return -1
     elif score > 6:
         return 1
     else:
+        # Should throw exception instead. Figure out the Python way of doing that whenever.
         return 2
 
 
-def real_get_text(reviews, score):
-    return " ".join([r[0].lower() for r in reviews if get_score() == score])
+def get_content(review):
+    file_text = open(review, 'r', encoding='UTF-8', errors='ignore')
 
+    text_lines = file_text.readlines()
+    # print(text_lines)
+    file_text.close()
+    return text_lines
+
+
+def real_get_text(reviews, score):
+    return " ".join([r.lower() for r in get_content(reviews) if get_score(reviews) == score])
 
 
 def get_text(positive_reviews, score):
@@ -86,4 +89,5 @@ positive_counts = count_text(positive_text)
 print("Negative text sample: {0}".format(negative_text[:100]))
 print("Positive text sample: {0}".format(positive_text[:100]))
 
-real_neg = real_get_text()
+positive = real_get_text("aclImdb/train/pos/0_9.txt", 1)
+print("Hopefully some text: {0}".format(positive[:100]))
