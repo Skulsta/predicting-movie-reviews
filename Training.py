@@ -67,12 +67,6 @@ def real_get_text(reviews, score):
     return " ".join([r.lower() for r in get_content(reviews) if get_score(reviews) == score])
 
 
-def get_text(positive_reviews, score):
-    # Join together the text in the reviews for a particular tone.
-    # Use lowercase to avoid "Not" and "not" being seen as different words.
-    return " ".join([r[0].lower() for r in positive_reviews if r[1] == str(score)])
-
-
 def count_text(text):
     # Split text into words based on whitespace.
     words = re.split("\s+", text)
@@ -80,16 +74,10 @@ def count_text(text):
     return Counter(words)
 
 
-negative_text = get_text(positive_reviews, -1)
-positive_text = get_text(positive_reviews, 1)
-# Generate word counts for negative tone.
-negative_counts = count_text(negative_text)
-# Generate word counts for positive tone.
-positive_counts = count_text(positive_text)
-
-
-print("Negative text sample: {0}".format(negative_text[:100]))
-print("Positive text sample: {0}".format(positive_text[:100]))
+def store_words(text):
+    counter = Counter()
+    words = re.split("\s+", text)
+    counter.update(words)
 
 
 # Test for one positive review.
@@ -111,8 +99,21 @@ def all_positive_reviews():
         print(count_text(real_get_text(file_path, 1)))
 
 
+def count_all_positive():
+    counter = Counter()
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
+        positive = real_get_text(file_path, 1)
+        words = re.split("\s+", positive)
+        counter.update(words)
+        print(words)
+    print(counter)
+
+
 # Iterates through every file and tests everything we have so far. Comment out
-all_positive_reviews()
+# all_positive_reviews()
+
+count_all_positive()
 
 """
 
@@ -138,4 +139,4 @@ search(path)
 
 #
 
-#fy fader dokker e tards. Skjerpings.
+# fy fader dokker e tards. Skjerpings.
