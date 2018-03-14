@@ -86,7 +86,7 @@ def store_words(text):
 # print("Hopefully some text: {0}".format(positive[:100]))
 # print("Hopefully nothing: {0}".format(negative[:100]))
 
-"""
+
 def all_positive_reviews():
     for file in positive_reviews:
         file_path = "aclImdb/train/pos/" + file
@@ -100,23 +100,20 @@ def all_positive_reviews():
 
 
 def count_all_positive():
-    counter = Counter()
+    all_words = []
     for file in positive_reviews:
         file_path = "aclImdb/train/pos/" + file
         positive = real_get_text(file_path, 1)
         words = re.split("\s+", positive)
-        counter.update(words)
-        print(words)
-    print(counter)
+        all_words += words
+    return Counter(all_words)
+
+print(count_all_positive().most_common(3))
 
 
-# Iterates through every file and tests everything we have so far. Comment out
-# all_positive_reviews()
 
-count_all_positive()
 
 """
-
 def search(file):
     total_counter = collections.Counter()
     if os.path.isdir(path) == True:
@@ -133,10 +130,6 @@ def search(file):
         counter=collections.Counter(x for x in words)
         total_counter += counter
 
-path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
-search(path)
-#
-
-#
-
-# fy fader dokker e tards. Skjerpings.
+"""
+# path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
+# search(path)
