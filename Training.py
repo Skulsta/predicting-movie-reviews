@@ -72,6 +72,12 @@ def count_text(text):
     return Counter(words)
 
 
+def store_words(text):
+    counter = Counter()
+    words = re.split("\s+", text)
+    counter.update(words)
+
+
 # Test for one positive review.
 # positive = real_get_text("aclImdb/train/pos/0_9.txt", 1)
 # negative =  real_get_text("aclImdb/train/pos/0_9.txt", -1)
@@ -91,8 +97,21 @@ def all_positive_reviews():
         print(count_text(real_get_text(file_path, 1)))
 
 
+def count_all_positive():
+    counter = Counter()
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
+        positive = real_get_text(file_path, 1)
+        words = re.split("\s+", positive)
+        counter.update(words)
+        print(words)
+    print(counter)
+
+
 # Iterates through every file and tests everything we have so far. Comment out
-all_positive_reviews()
+# all_positive_reviews()
+
+count_all_positive()
 
 #
 
