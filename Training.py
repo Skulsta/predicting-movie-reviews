@@ -1,12 +1,14 @@
 # Importing this class because it will likely be usefull
 # for counting the number of times an item occur in a list.
 from collections import Counter
+import collections
 
 import os.path
 import re
 
 # Gets the first file from pos training folder and
 # prints the data. Also, the number of data. Which is one array.
+
 text_file = open("aclImdb/train/pos/0_9.txt", 'r')
 lines = text_file.readlines()
 print(lines)
@@ -96,14 +98,14 @@ print("Positive text sample: {0}".format(positive_text[:100]))
 # print("Hopefully some text: {0}".format(positive[:100]))
 # print("Hopefully nothing: {0}".format(negative[:100]))
 
-
+"""
 def all_positive_reviews():
     for file in positive_reviews:
         file_path = "aclImdb/train/pos/" + file
         positive = real_get_text(file_path, 1)
         negative = real_get_text(file_path, -1)
-        print("Hopefully some text: {0}".format(positive[:100]))
-        print("Hopefully nothing: {0}".format(negative[:100]))
+        #print("Hopefully some text: {0}".format(positive[:100]))
+        #print("Hopefully nothing: {0}".format(negative[:100]))
 
         # This counts how many times every word is repeated in the given text
         print(count_text(real_get_text(file_path, 1)))
@@ -112,6 +114,26 @@ def all_positive_reviews():
 # Iterates through every file and tests everything we have so far. Comment out
 all_positive_reviews()
 
+"""
+
+def search(file):
+    total_counter = collections.Counter()
+    if os.path.isdir(path) == True:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                words = re.findall('\w+', open(os.path.join(root, file)).read().lower())
+                ignore = ('errors', 'undefined')
+                counter=collections.Counter(x for x in words if x not in ignore)
+                total_counter += counter
+                print(total_counter)
+
+    else:
+        words = re.findall('\w+', open(path).read().lower())
+        counter=collections.Counter(x for x in words)
+        total_counter += counter
+
+path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
+search(path)
 #
 
 #
