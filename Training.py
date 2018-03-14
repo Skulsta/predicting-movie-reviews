@@ -108,28 +108,9 @@ def count_all_positive():
         all_words += words
     return Counter(all_words)
 
-print(count_all_positive().most_common(3))
 
+def make_class_prediction(text, counts, class_prob, class_count):
+    prediction = 1
+    text_counts = count_all_positive()
+    # for word in text_counts ...
 
-
-
-"""
-def search(file):
-    total_counter = collections.Counter()
-    if os.path.isdir(path) == True:
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                words = re.findall('\w+', open(os.path.join(root, file)).read().lower())
-                ignore = ('errors', 'undefined')
-                counter=collections.Counter(x for x in words if x not in ignore)
-                total_counter += counter
-                print(total_counter)
-
-    else:
-        words = re.findall('\w+', open(path).read().lower())
-        counter=collections.Counter(x for x in words)
-        total_counter += counter
-
-"""
-# path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
-# search(path)
