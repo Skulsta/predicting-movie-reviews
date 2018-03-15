@@ -185,3 +185,8 @@ def search(file):
 """
 # path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
 # search(path)
+
+def make_class_prediction(text, counts, class_prob, class_count):
+    prediction = 1
+    text_counts = count_all_positive()
+    # for word in text_counts ...
