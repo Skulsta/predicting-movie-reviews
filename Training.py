@@ -113,6 +113,11 @@ def count_all_negative():
     return Counter(all_words)
 
 
+# Only retrieve words once.
+all_negative_words = count_all_negative()
+all_positive_words = count_all_positive()
+
+
 def total_of_positive_words():
     all_words = []
     for file in positive_reviews:
@@ -135,15 +140,19 @@ def total_of_negative_words():
     return totalNum
 
 
+total_pos = total_of_positive_words()
+total_neg = total_of_negative_words()
+
+
 def calculating_neg_weights(word):
     # if word in count_all_negative():
-    res = (count_all_negative().get(word)) / total_of_negative_words()
+    res = (all_negative_words.get(word)) / total_neg
     return res
 
 
 def calculating_pos_weights(word):
     # if word in count_all_positive():
-    res = (count_all_positive().get(word)) / total_of_positive_words()
+    res = (all_positive_words.get(word)) / total_pos
     return res
 
 
@@ -194,14 +203,19 @@ print(get_content(test_pos))
 def real_bayes_pos(text):
     pred1 = 1
     pred2 = 1
-    text_counts = Counter(re.split("\s+", text[:10]))
+    text_counts = Counter(re.split("\s+", text))
     for word in text_counts:
         print(word)
         # if word in count_all_positive():
         pred1 *= calculating_pos_weights(word)
         # if word in count_all_negative():
         pred2 *= calculating_neg_weights(word)
-        res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
+        if prob_neg > 0 & prob_pos > 0:
+            res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
     return res
 
-# print(real_bayes_pos(retrieve_text(test_pos)))
+
+print("Where real shit happens")
+print()
+
+print(real_bayes_pos(retrieve_text(test_pos)))
