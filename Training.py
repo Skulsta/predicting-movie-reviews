@@ -140,19 +140,17 @@ def total_of_negative_words():
     return totalNum
 
 
-total_pos = total_of_positive_words()
-total_neg = total_of_negative_words()
+total_pos = sum(count_all_positive().values())
+total_neg = sum(count_all_negative().values())
 
 
 def calculating_neg_weights(word):
-    # if word in count_all_negative():
-    res = (all_negative_words.get(word)) / total_neg
+    res = (all_negative_words.get(word, 0) + 1) / total_neg
     return res
 
 
 def calculating_pos_weights(word):
-    # if word in count_all_positive():
-    res = (all_positive_words.get(word)) / total_pos
+    res = (all_positive_words.get(word, 0) + 1) / total_pos
     return res
 
 
@@ -202,12 +200,17 @@ print(get_content(test_pos))
 def real_bayes_pos(text):
     pred1 = 1
     pred2 = 1
+    smoothing = 0.1
     text_counts = Counter(re.split("\s+", text))
     for word in text_counts:
         print(word)
-        pred1 *= calculating_pos_weights(word)
-        pred2 *= calculating_neg_weights(word)
-        res = (pred1*prob_pos)/((pred1*prob_pos) + (pred2*prob_neg))
+        if word in all_positive_words:
+            print(pred1)
+            pred1 *= calculating_pos_weights(word)
+        if word in all_negative_words:
+            print(pred2)
+            pred2 *= calculating_neg_weights(word)
+    res = (pred1*prob_pos)/((pred1*prob_pos) + (pred2*prob_neg))
     return res
 
 
