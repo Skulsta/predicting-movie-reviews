@@ -9,12 +9,6 @@ import re
 # Gets the first file from pos training folder and
 # prints the data. Also, the number of data. Which is one array.
 
-"""text_file = open("aclImdb/train/pos/0_9.txt", 'r')
-lines = text_file.readlines()
-print(lines)
-print(len(lines))
-text_file.close()"""
-
 # true if this exists and is a file, false if not.
 # print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
 
@@ -87,13 +81,6 @@ def store_words(text):
     counter.update(words)
 
 
-# Test for one positive review.
-# positive = real_get_text("aclImdb/train/pos/0_9.txt", 1)
-# negative =  real_get_text("aclImdb/train/pos/0_9.txt", -1)
-# print("Hopefully some text: {0}".format(positive[:100]))
-# print("Hopefully nothing: {0}".format(negative[:100]))
-
-
 def all_positive_reviews():
     for file in positive_reviews:
         file_path = "aclImdb/train/pos/" + file
@@ -149,11 +136,13 @@ def total_of_negative_words():
 
 
 def calculating_neg_weights(word):
+    # if word in count_all_negative():
     res = (count_all_negative().get(word)) / total_of_negative_words()
     return res
 
 
 def calculating_pos_weights(word):
+    # if word in count_all_positive():
     res = (count_all_positive().get(word)) / total_of_positive_words()
     return res
 
@@ -174,17 +163,18 @@ def make_class_predictions(text, counts, class_prob, class_count):
     prediction = 1
     text_counts = Counter(re.split("\s", text))
     for word in text_counts:
+        print(word)
         prediction *= text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
-        return prediction * class_prob
+    return prediction * class_prob
 
 
 test_review = "aclImdb/train/pos/0_9.txt"
 
 # As you can see, we can now generate probabilities for which class a given review is part of.
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-print("Review: {0}".format(retrieve_text(test_review)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_negative(), 0.2, 12500)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_positive(), 0.8, 15500)))
+# print("Review: {0}".format(retrieve_text(test_review)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_negative(), 0.5, 12500)))
+print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_positive(), 0.5, 12500)))
 
 print("All info")
 print(retrieve_text((test_review)))
@@ -194,18 +184,24 @@ print(12500)
 
 
 test_pos = "aclImdb/test/pos/0_10.txt"
-retrieve_text(test_pos)
+
+
 
 print(retrieve_text(test_pos))
+
+print(get_content(test_pos))
 
 def real_bayes_pos(text):
     pred1 = 1
     pred2 = 1
-    text_counts = Counter(retrieve_text(text))
+    text_counts = Counter(re.split("\s+", text[:10]))
     for word in text_counts:
+        print(word)
+        # if word in count_all_positive():
         pred1 *= calculating_pos_weights(word)
+        # if word in count_all_negative():
         pred2 *= calculating_neg_weights(word)
-    res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
+        res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
     return res
 
-print(real_bayes_pos(test_pos))
+# print(real_bayes_pos(retrieve_text(test_pos)))
