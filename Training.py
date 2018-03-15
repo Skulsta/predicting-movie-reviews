@@ -21,10 +21,10 @@ text_file.close()"""
 # List every file in the pos training folder
 # This one might be important. We can split by underscore and retrieve the review score using regex.
 positive_reviews = os.listdir("aclImdb/train/pos")
-print(positive_reviews)
+#print(positive_reviews)
 
 negative_reviews = os.listdir("aclImdb/train/neg")
-print(negative_reviews)
+#print(negative_reviews)
 
 
 # Give it the file path of a text file, and it will read the content.
@@ -144,14 +144,19 @@ def total_of_negative_words():
     return totalNum
 
 
-def calculating_neg_weights():
-    all_words = []
-    for file in negative_reviews:
-        file_path2 = "aclImdb/train/neg/" + file
-        negative = real_get_text(file_path2, -1)
-        words = re.split("\s+", negative)
-        all_words += words
-    return print(Counter(all_words))
+def calculating_neg_weights(word):
+    res = (count_all_negative().get(word)) / total_of_negative_words()
+    return res
+
+
+def calculating_pos_weights(word):
+    res = (count_all_positive().get(word)) / total_of_positive_words()
+    return res
+
+
+print(calculating_neg_weights("the"))
+
+
 
 """print(calculating_neg_weights().most_common(1))
 
@@ -163,8 +168,30 @@ print(count_all_positive().most_common(3))
 
 print(count_all_negative().most_common(3))"""
 
-print((count_all_negative().get("the"))/total_of_negative_words())
 
+# print((count_all_negative().get("the")) / total_of_negative_words())
+
+prob_pos = 0.5
+prob_neg = 0.5
+
+def make_predictions(text, class_prob)
+
+
+"""def make_class_predictions(text, counts, class_prob, class_count):
+    prediction = 1
+    text_counts = Counter(re.split("\s", text))
+    for word in text_counts:
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
+        return prediction * class_prob
+
+
+test_pos = "aclImdb/test/pos/0_10.txt"
+
+print("Review: {0}".format(get_content(test_pos)))
+
+print("Negative prediction: {0}".format(make_class_predictions(get_content(test_pos), count_all_positive(), prob_neg, 12500)))
+
+print("Positive prediction: {0}".format(make_class_predictions(get_content(test_pos), total_of_negative_words(), prob_pos, 12500)))"""
 """
 def search(file):
     total_counter = collections.Counter()
@@ -183,8 +210,11 @@ def search(file):
         total_counter += counter
 
 """
+
+
 # path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
 # search(path)
+
 
 def make_class_prediction(text, counts, class_prob, class_count):
     prediction = 1
