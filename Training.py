@@ -1,4 +1,4 @@
-# Importing this class because it will likely be usefull
+# Importing this class because it will likely be useful
 # for counting the number of times an item occur in a list.
 from collections import Counter
 import collections
@@ -9,20 +9,23 @@ import re
 # Gets the first file from pos training folder and
 # prints the data. Also, the number of data. Which is one array.
 
-text_file = open("aclImdb/train/pos/0_9.txt", 'r')
+"""text_file = open("aclImdb/train/pos/0_9.txt", 'r')
 lines = text_file.readlines()
 print(lines)
 print(len(lines))
-text_file.close()
+text_file.close()"""
 
 # true if this exists and is a file, false if not.
-print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
-
+# print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
 
 # List every file in the pos training folder
 # This one might be important. We can split by underscore and retrieve the review score using regex.
 positive_reviews = os.listdir("aclImdb/train/pos")
 print(positive_reviews)
+
+negative_reviews = os.listdir("aclImdb/train/neg")
+print(negative_reviews)
+
 
 # Give it the file path of a text file, and it will read the content.
 def get_real_text(file_path):
@@ -92,8 +95,8 @@ def all_positive_reviews():
         file_path = "aclImdb/train/pos/" + file
         positive = real_get_text(file_path, 1)
         negative = real_get_text(file_path, -1)
-        #print("Hopefully some text: {0}".format(positive[:100]))
-        #print("Hopefully nothing: {0}".format(negative[:100]))
+        # print("Hopefully some text: {0}".format(positive[:100]))
+        # print("Hopefully nothing: {0}".format(negative[:100]))
 
         # This counts how many times every word is repeated in the given text
         print(count_text(real_get_text(file_path, 1)))
@@ -102,16 +105,65 @@ def all_positive_reviews():
 def count_all_positive():
     all_words = []
     for file in positive_reviews:
-        file_path = "aclImdb/train/pos/" + file
-        positive = real_get_text(file_path, 1)
+        file_path1 = "aclImdb/train/pos/" + file
+        positive = real_get_text(file_path1, 1)
         words = re.split("\s+", positive)
         all_words += words
     return Counter(all_words)
 
+
+def count_all_negative():
+    all_words = []
+    for file in negative_reviews:
+        file_path2 = "aclImdb/train/neg/" + file
+        negative = real_get_text(file_path2, -1)
+        words = re.split("\s+", negative)
+        all_words += words
+    return Counter(all_words)
+
+
+def total_of_positive_words():
+    all_words = []
+    for file in positive_reviews:
+        file_path1 = "aclImdb/train/pos/" + file
+        positive = real_get_text(file_path1, 1)
+        words = re.split("\s+", positive)
+        all_words += words
+        totalNum = len(all_words)
+    return totalNum
+
+
+def total_of_negative_words():
+    all_words = []
+    for file in negative_reviews:
+        file_path2 = "aclImdb/train/neg/" + file
+        negative = real_get_text(file_path2, -1)
+        words = re.split("\s+", negative)
+        all_words += words
+        totalNum = len(all_words)
+    return totalNum
+
+
+def calculating_neg_weights():
+    all_words = []
+    for file in negative_reviews:
+        file_path2 = "aclImdb/train/neg/" + file
+        negative = real_get_text(file_path2, -1)
+        words = re.split("\s+", negative)
+        all_words += words
+    return print(Counter(all_words))
+
+"""print(calculating_neg_weights().most_common(1))
+
+print(total_of_positive_words())
+
+print(total_of_negative_words())
+
 print(count_all_positive().most_common(3))
 
+print(count_all_negative().most_common(3))"""
 
-
+print((count_all_negative().get("the"))/total_of_negative_words())
 
 """
 def search(file):
