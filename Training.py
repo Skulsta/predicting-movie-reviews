@@ -172,7 +172,6 @@ def make_class_predictions(text, counts, class_prob, class_count):
     prediction = 1
     text_counts = Counter(re.split("\s", text))
     for word in text_counts:
-        print(word)
         prediction *= text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
     return prediction * class_prob
 
@@ -183,7 +182,7 @@ test_review = "aclImdb/train/pos/0_9.txt"
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
 # print("Review: {0}".format(retrieve_text(test_review)))
 # print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_negative(), 0.5, 12500)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_positive(), 0.5, 12500)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_positive(), 0.5, 12500)))
 
 print("All info")
 print(retrieve_text((test_review)))
@@ -210,7 +209,7 @@ def real_bayes_pos(text):
         pred1 *= calculating_pos_weights(word)
         # if word in count_all_negative():
         pred2 *= calculating_neg_weights(word)
-        if prob_neg > 0 & prob_pos > 0:
+        if prob_neg > 0 and prob_pos > 0:
             res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
     return res
 
