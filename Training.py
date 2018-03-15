@@ -69,6 +69,10 @@ def get_content(review):
 def real_get_text(reviews, score):
     return " ".join([r.lower() for r in get_content(reviews) if get_score(reviews) == score])
 
+# Get text without worrying about the stupid score.
+def retrieve_text(review):
+    return " ".join([r.lower() for r in get_content(review)])
+
 
 def count_text(text):
     # Split text into words based on whitespace.
@@ -151,42 +155,52 @@ def calculating_neg_weights():
         negative = real_get_text(file_path2, -1)
         words = re.split("\s+", negative)
         all_words += words
-    return print(Counter(all_words))
+    return (Counter(all_words))
 
-"""print(calculating_neg_weights().most_common(1))
 
 print(total_of_positive_words())
 
+
 print(total_of_negative_words())
 
+"""
 print(count_all_positive().most_common(3))
 
-print(count_all_negative().most_common(3))"""
-
-print((count_all_negative().get("the"))/total_of_negative_words())
-
+print(count_all_negative().most_common(3))
 """
-def search(file):
-    total_counter = collections.Counter()
-    if os.path.isdir(path) == True:
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                words = re.findall('\w+', open(os.path.join(root, file)).read().lower())
-                ignore = ('errors', 'undefined')
-                counter=collections.Counter(x for x in words if x not in ignore)
-                total_counter += counter
-                print(total_counter)
 
-    else:
-        words = re.findall('\w+', open(path).read().lower())
-        counter=collections.Counter(x for x in words)
-        total_counter += counter
-
-"""
-# path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
-# search(path)
 
 def make_class_prediction(text, counts, class_prob, class_count):
+  prediction = 1
+  text_counts = Counter(re.split("\s+", text))
+  for word in text_counts:
+      # For every word in the text, we get the number of times that word occured in the reviews for a given class, add 1 to smooth the value, and divide by the total number of words in the class (plus the class_count to also smooth the denominator).
+      # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
+      # We also smooth the denominator counts to keep things even.
+      prediction *=  text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
+  # Now we multiply by the probability of the class existing in the documents.
+  return prediction * class_prob
+
+test_review = "aclImdb/train/pos/0_9.txt"
+
+# As you can see, we can now generate probabilities for which class a given review is part of.
+# The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
+print("Review: {0}".format(retrieve_text(test_review)))
+print("Negative prediction: {0}".format(make_class_prediction(retrieve_text(test_review), count_all_negative(), 0.2, 12500)))
+print("Positive prediction: {0}".format(make_class_prediction(retrieve_text(test_review), count_all_positive(), 0.8, 15500)))
+
+print("All info")
+print(retrieve_text((test_review)))
+print(count_all_positive().get("this"))
+print(0.5)
+print(12500)
+
+def calculating_pos_weights():
+
+
+
+def real_bayes(text, counts):
     prediction = 1
-    text_counts = count_all_positive()
-    # for word in text_counts ...
+    text_counts = Counter(re.split("\s+", text))
+    for word in text_counts:
+        prediction *= text_counts(word)/count_all_positive().get(word)
