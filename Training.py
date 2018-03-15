@@ -140,8 +140,8 @@ def total_of_negative_words():
     return totalNum
 
 
-total_pos = sum(count_all_positive().values())
-total_neg = sum(count_all_negative().values())
+total_pos = count_all_positive()
+total_neg = count_all_negative()
 
 
 def calculating_neg_weights(word):
@@ -166,37 +166,44 @@ prob_pos = 0.5
 prob_neg = 0.5
 
 
-def make_class_predictions(text, counts, class_prob, class_count):
-    prediction = 1
-    text_counts = Counter(re.split("\s", text))
-    for word in text_counts:
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
-    return prediction * class_prob
-
-
 test_review = "aclImdb/train/pos/0_9.txt"
 
-# As you can see, we can now generate probabilities for which class a given review is part of.
-# The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-# print("Review: {0}".format(retrieve_text(test_review)))
-# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_negative(), 0.5, 12500)))
-# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), count_all_positive(), 0.5, 12500)))
+def get_y_count(reviews, score):
+    # Compute the count of each classification occuring in the data
+    return len([r for r in reviews if get_score(r) == score])
 
-print("All info")
-print(retrieve_text((test_review)))
-print(count_all_positive().get("this"))
-print(0.5)
-print(12500)
+positive_review_count = get_y_count(positive_reviews, 1)
+negative_review_count = get_y_count(negative_reviews, -1)
+
+prob_positive = positive_review_count / (positive_review_count + negative_review_count)
+prob_negative = negative_review_count / (positive_review_count + negative_review_count)
 
 
 test_pos = "aclImdb/test/pos/0_10.txt"
 
+def make_class_predictions(text, counts, class_prob, class_count):
+    prediction = 1
+    text_counts = Counter(re.split("\s", text))
+    for word in text_counts:
+        # For every word in the text, we get the number of times that word occured in the reviews for a given class, add alpha to smooth the value, and divide by the total number of words in the class (plus the class_count to also smooth the denominator).
+        # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
+        # We also smooth the denominator counts to keep things even.
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 350) / (sum(counts.values()) + class_count))
+    return prediction * class_prob
 
 
-print(retrieve_text(test_pos))
+# As you can see, we can now generate probabilities for which class a given review is part of.
+# The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
+print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
+print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)))
+print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)))
 
-print(get_content(test_pos))
+print("Review for test_review: {0}".format(retrieve_text(test_review)))
+print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words, prob_negative, negative_review_count)))
+print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words, prob_positive, positive_review_count)))
 
+
+"""
 def real_bayes_pos(text):
     pred1 = 1
     pred2 = 1
@@ -212,9 +219,9 @@ def real_bayes_pos(text):
             pred2 *= calculating_neg_weights(word)
     res = (pred1*prob_pos)/((pred1*prob_pos) + (pred2*prob_neg))
     return res
-
+"""
 
 print("Where real shit happens")
 print()
 
-print(real_bayes_pos(retrieve_text(test_pos)))
+# print(real_bayes_pos(retrieve_text(test_pos)))
