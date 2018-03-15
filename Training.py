@@ -158,7 +158,7 @@ def calculating_pos_weights(word):
     return res
 
 
-print(calculating_neg_weights("the"))
+#print(calculating_neg_weights("the"))
 
 
 def calculating_neg_weights():
@@ -171,10 +171,10 @@ def calculating_neg_weights():
     return (Counter(all_words))
 
 
-print(total_of_positive_words())
+#print(total_of_positive_words())
 
 
-print(total_of_negative_words())
+#print(total_of_negative_words())
 
 """
 print(count_all_positive().most_common(3))
@@ -187,7 +187,7 @@ print(count_all_negative().most_common(3))
 prob_pos = 0.5
 prob_neg = 0.5
 
-def make_predictions(text, class_prob)
+#def make_predictions(text, class_prob)
 
 
 """def make_class_predictions(text, counts, class_prob, class_count):
@@ -195,11 +195,11 @@ def make_predictions(text, class_prob)
     text_counts = Counter(re.split("\s", text))
     for word in text_counts:
         prediction *= text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
-        return prediction * class_prob
+        return prediction * class_prob"""
 
 
-test_pos = "aclImdb/test/pos/0_10.txt"
 
+""""
 print("Review: {0}".format(get_content(test_pos)))
 
 print("Negative prediction: {0}".format(make_class_predictions(get_content(test_pos), count_all_positive(), prob_neg, 12500)))
@@ -235,7 +235,7 @@ test_review = "aclImdb/train/pos/0_9.txt"
 # path = ("C:/Users/Magnus/Documents/Universitetsarbeid/INFO284/Oblig1/predicting-movie-reviews/aclImdb/train/pos")
 # search(path)
 
-
+"""
 def make_class_prediction(text, counts, class_prob, class_count):
 
 # As you can see, we can now generate probabilities for which class a given review is part of.
@@ -249,13 +249,20 @@ print(retrieve_text((test_review)))
 print(count_all_positive().get("this"))
 print(0.5)
 print(12500)
-
-def calculating_pos_weights():
-
+"""
 
 
-def real_bayes(text, counts):
-    prediction = 1
-    text_counts = Counter(re.split("\s+", text))
+test_pos = "aclImdb/test/pos/0_10.txt"
+retrieve_text(test_pos)
+
+def real_bayes_pos(text):
+    pred1 = 1
+    pred2 = 1
+    text_counts = Counter(re.split("\s+", retrieve_text(test_pos)))
     for word in text_counts:
-        prediction *= text_counts(word)/count_all_positive().get(word)
+        pred1 *= calculating_pos_weights(word)
+        pred2 *= calculating_neg_weights(word)
+    res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
+    return res
+
+print(real_bayes_pos(test_pos))
