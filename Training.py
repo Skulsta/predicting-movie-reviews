@@ -205,12 +205,9 @@ def real_bayes_pos(text):
     text_counts = Counter(re.split("\s+", text))
     for word in text_counts:
         print(word)
-        # if word in count_all_positive():
         pred1 *= calculating_pos_weights(word)
-        # if word in count_all_negative():
         pred2 *= calculating_neg_weights(word)
-        if prob_neg > 0 and prob_pos > 0:
-            res = (pred1*prob_pos)/((pred1*prob_pos)/(pred2*prob_neg))
+        res = (pred1*prob_pos)/((pred1*prob_pos) + (pred2*prob_neg))
     return res
 
 
