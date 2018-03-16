@@ -105,14 +105,12 @@ def all_positive_reviews():
 def count_all_words():
     all_words = []
     for file in positive_reviews or negative_reviews:
-        file_path = ("aclImdb/train/pos/" + file) or ("aclImdb/train/neg/")
+        file_path = ("aclImdb/train/pos/" + file) or ("aclImdb/train/neg/" + file)
         positive = real_get_text(file_path, 1)
         negative = real_get_text(file_path, -1)
         poswords = re.split("\s+", positive)
         negwords = re.split("\s+", negative)
-        words = poswords + negwords
-        stopwords = get_stopwords()
-        all_words += [words for words in words if words not in stopwords]
+        all_words += poswords + negwords
     return Counter(all_words)
 
 """
@@ -146,9 +144,9 @@ def count_all_positive():
         words = re.split("\s+", positive)
         stopwords = get_stopwords()
         all_words += [words for words in words if words not in stopwords]
-    return Counter(all_words)
+    return all_words
 
-print(count_all_positive().most_common(10))
+#print(count_all_positive().most_common(5))
 
 def count_all_negative():
     all_words = []
@@ -158,9 +156,18 @@ def count_all_negative():
         words = re.split("\s+", negative)
         stopwords = get_stopwords()
         all_words += [words for words in words if words not in stopwords]
-    return Counter(all_words)
+    return all_words
 
-print(count_all_negative().most_common(10))
+#print(count_all_negative().most_common(5))
+
+def count_all():
+    count_all = count_all_negative() + count_all_positive()
+    return Counter(count_all)
+
+print(count_all().most_common(5))
+
+all_words_counted = count_all_positive() + count_all_negative()
+
 
 # Only retrieve words once.
 all_negative_words = count_all_negative()
