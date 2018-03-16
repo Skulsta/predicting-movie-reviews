@@ -14,6 +14,8 @@ import re
 
 # List every file in the pos training folder
 # This one might be important. We can split by underscore and retrieve the review score using regex.
+from email.mime import base
+
 positive_reviews = os.listdir("aclImdb/train/pos")
 #print(positive_reviews)
 
@@ -124,7 +126,8 @@ def total_of_positive_words():
         file_path1 = "aclImdb/train/pos/" + file
         positive = real_get_text(file_path1, 1)
         words = re.split("\s+", positive)
-        all_words += words
+        if not words.equals("this"):
+            all_words += words
         totalNum = len(all_words)
     return totalNum
 
@@ -135,7 +138,8 @@ def total_of_negative_words():
         file_path2 = "aclImdb/train/neg/" + file
         negative = real_get_text(file_path2, -1)
         words = re.split("\s+", negative)
-        all_words += words
+        if not words.equals("this"):
+            all_words += words
         totalNum = len(all_words)
     return totalNum
 
@@ -161,9 +165,6 @@ def calculating_pos_weights(word):
 #print(total_of_negative_words())
 
 # print((count_all_negative().get("the")) / total_of_negative_words())
-
-prob_pos = 0.5
-prob_neg = 0.5
 
 
 test_review = "aclImdb/train/pos/0_9.txt"
@@ -192,15 +193,40 @@ def make_class_predictions(text, counts, class_prob, class_count):
     return prediction * class_prob
 
 
+prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
+print(prob_neg)
+print(prob_pos)
+
+
+def pos_or_neg(prob_neg, prob_pos):
+    if prob_pos > prob_neg:
+        return 1
+    elif prob_pos < prob_neg:
+        return -1
+    else:
+        return 0
+
+print(pos_or_neg(prob_neg, prob_pos))
+
+def error_rate(predicted, actual):
+    # for file in reviews:
+        print("wo")
+# get_score(test_pos)
+
+
 # As you can see, we can now generate probabilities for which class a given review is part of.
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)))
+# print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)))
 
-print("Review for test_review: {0}".format(retrieve_text(test_review)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words, prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words, prob_positive, positive_review_count)))
+# print("Review for test_review: {0}".format(retrieve_text(test_review)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words, prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words, prob_positive, positive_review_count)))
+
+
+
 
 
 """
@@ -228,8 +254,8 @@ print()
 
 
 def train_all_positives():
-    for file in positive_reviews:
-        file_path = "aclImdb/train/pos/" + file
+    for file in negative_reviews:
+        file_path = "aclImdb/train/neg/" + file
         print()
         print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)))
         print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)))
