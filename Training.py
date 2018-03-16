@@ -222,8 +222,8 @@ def get_y_count(reviews, score):
     return len([r for r in reviews if get_score(r) == score])
 
 
-positive_review_count = get_y_count(positive_reviews, 1)
-negative_review_count = get_y_count(negative_reviews, -1)
+positive_review_count = get_y_count(count_all_words(), 1)
+negative_review_count = get_y_count(count_all_words(), -1)
 
 prob_positive = positive_review_count / (positive_review_count + negative_review_count)
 prob_negative = negative_review_count / (positive_review_count + negative_review_count)
