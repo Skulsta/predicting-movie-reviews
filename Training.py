@@ -225,3 +225,14 @@ print("Where real shit happens")
 print()
 
 # print(real_bayes_pos(retrieve_text(test_pos)))
+
+
+def train_all_positives():
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
+        print()
+        print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)))
+        print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)))
+
+# Warning: uncomment the sentence below and shit will go on forever.
+# train_all_positives()
