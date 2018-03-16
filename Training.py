@@ -232,7 +232,7 @@ def make_class_predictions(text, counts, class_prob, class_count):
         # (plus the class_count to also smooth the denominator).
         # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
         # We also smooth the denominator counts to keep things even.
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.2) / (sum(counts.values()) + class_count))
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.23) / (sum(counts.values()) + class_count))
     return prediction * class_prob
 
 
@@ -241,7 +241,7 @@ prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, p
 print(prob_neg)
 print(prob_pos)
 
-# 6453.3 makes everything positive
+# 6453.23 makes everything positive
 # 6453.2 makes everything negative
 
 def pos_or_neg(prob_pos, prob_neg):
@@ -259,7 +259,7 @@ def error_rate_pos():
     right = 0
     wrong = 0
     error = 0
-    for file in positive_reviews[:10]:
+    for file in positive_reviews[:20]:
         file_path = "aclImdb/train/pos/" + file
         actual = get_score(file_path)
         prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
@@ -279,7 +279,7 @@ def error_rate_neg():
     right = 0
     wrong = 0
     error = 0
-    for file in negative_reviews[:10]:
+    for file in negative_reviews[:20]:
         file_path = "aclImdb/train/neg/" + file
         actual = get_score(file_path)
         prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
