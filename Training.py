@@ -1,19 +1,16 @@
-# Importing this class because it will likely be useful
-# for counting the number of times an item occur in a list.
 from collections import Counter
 import collections
 
 import os.path
 import re
 
-# Gets the first file from pos training folder and
-# prints the data. Also, the number of data. Which is one array.
-
-# true if this exists and is a file, false if not.
-# print(os.path.isfile("aclImdb/train/pos/0_9.txt"))
-
-# List every file in the pos training folder
-# This one might be important. We can split by underscore and retrieve the review score using regex.
+# Tests at the bottom.
+# Important variables:
+# - test_review for testing stuff
+# - all_reviews is an array of every test files. 25 000 files.
+# - stopword contains every word we have defined in our stopwords.txt file. Used to filter words from reviews.
+# - number_of_positive_reviews is the number of positive reviews. 12 500.
+# - number_of_negative_reviews is the number of negative reviews. 12 500.
 
 # An array with every file in the folder.
 positive_reviews_folder = "aclImdb/train/pos/"
@@ -70,8 +67,6 @@ def get_text(reviews):
     return " ".join([r.lower() for r in get_content(reviews)])
 
 
-# Prints the text of a review.
-# print(get_text(test_review))
 
 
 
@@ -99,7 +94,30 @@ def remove_stopwords(text):
             filtered_result += word
     return Counter(filtered_result)
 
-"""
+
+# Retrieving the total number of positive and negative traning reviews
+number_of_positive_reviews = (len(positive_reviews))
+number_of_negative_reviews = (len(negative_reviews))
+
+
+def make_class_predictions(text, counts, class_prob, class_count):
+    prediction = 1
+    text_counts = Counter(re.split("\s", text))
+    for word in text_counts:
+        # For every word in the text, we get the number of times that word occured in the reviews for a given class,
+        # add alpha to smooth the value, and divide by the total number of words in the class
+        # (plus the class_count to also smooth the denominator).
+        # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
+        # We also smooth the denominator counts to keep things even.
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.23) / (sum(counts.values()) + class_count))
+    return prediction * class_prob
+
+
+""" TESTS - Uncomment to get cracy much insights.
+
+# Prints the text of a review.
+print(get_text(test_review))
+
 # From 99 to 31 words after filtering.
 print("\nBefore and after filtering stopwords:")
 print(len(count_text(get_text(test_review))))
@@ -112,7 +130,6 @@ print(sum(count_text(get_text(test_review)).values()))
 # Prints every word and how many times it occurres
 print("\nUsing count_text and get_text: ")
 print(count_text(get_text(test_review)))
-"""
 
 # Total amount of words in training set
 print("\nTotal amount of words in the training set:")
@@ -159,82 +176,4 @@ for review in negative_reviews:
     review_text = get_text(negative_reviews_folder + review)
     total_number_of_words += len(remove_stopwords(review_text))
 print(total_number_of_words)
-
-
-
-# Retrieving the total number of positive and negative traning reviews
-number_of_positive_reviews = (len(positive_reviews))
-number_of_negative_reviews = (len(negative_reviews))
-
-
-
-
-
-def get_y_count(reviews, score):
-    # Compute the count of each classification occuring in the data
-    return len([r for r in reviews if get_score(r) == score])
-
-
-# positive_review_count = get_y_count(positive_reviews, 1)
-# negative_review_count = get_y_count(negative_reviews, -1)
-
-# prob_positive = positive_review_count / (positive_review_count + negative_review_count)
-# prob_negative = negative_review_count / (positive_review_count + negative_review_count)
-
-# test_neg = "aclImdb/test/neg/7_1.txt"
-# test_pos = "aclImdb/test/pos/0_10.txt"
-
-
-def make_class_predictions(text, counts, class_prob, class_count):
-    prediction = 1
-    text_counts = Counter(re.split("\s", text))
-    for word in text_counts:
-        # For every word in the text, we get the number of times that word occured in the reviews for a given class,
-        # add alpha to smooth the value, and divide by the total number of words in the class
-        # (plus the class_count to also smooth the denominator).
-        # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
-        # We also smooth the denominator counts to keep things even.
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.23) / (sum(counts.values()) + class_count))
-    return prediction * class_prob
-
-
-# prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
-# prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
-# print(prob_neg)
-# print(prob_pos)
-
-# 6453.23 makes everything positive
-# 6453.2 makes everything negative
-
-def pos_or_neg(prob_pos, prob_neg):
-    if prob_pos > prob_neg:
-        return 1
-    elif prob_pos < prob_neg:
-        return -1
-    else:
-        return 0
-
-# print(pos_or_neg(prob_pos, prob_neg))
-
-
-def error_rate_pos():
-    right = 0
-    wrong = 0
-    error = 0
-    for file in positive_reviews[:20]:
-        file_path = "aclImdb/train/pos/" + file
-        actual = get_score(file_path)
-        prob_pos = make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)
-        prob_neg = make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)
-        predicted = pos_or_neg(prob_pos, prob_neg)
-        if predicted == actual:
-            right += 1
-        elif not predicted == actual:
-            wrong += 1
-        else:
-            error += 1
-    print("right: " + str(right))
-    print("wrong: " + str(wrong))
-    print()
-
-
+"""
