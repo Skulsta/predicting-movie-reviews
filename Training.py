@@ -20,9 +20,14 @@ positive_reviews = os.listdir("aclImdb/train/pos")
 # print(positive_reviews)
 
 negative_reviews = os.listdir("aclImdb/train/neg")
-
-
 # print(negative_reviews)
+
+def get_stopwords():
+    with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
+        stopwords = myfile.read().replace('\n', ' ')
+    return stopwords
+
+print(get_stopwords())
 
 
 # Give it the file path of a text file, and it will read the content.
@@ -105,22 +110,24 @@ def count_all_words():
         negative = real_get_text(file_path, -1)
         poswords = re.split("\s+", positive)
         negwords = re.split("\s+", negative)
-        all_words += poswords + negwords
-    return all_words
+        words = poswords + negwords
+        stopwords = get_stopwords()
+        all_words += [words for words in words if words not in stopwords]
+    return Counter(all_words)
 
-
+"""
 def remove_most_used_stopwords():
     all_words = count_all_words()
     words = count_all_words()
     cleaned_words = []
-    stopwords = "the", "a", "and", "i"
+
     if(words == stopwords):
         all_words -=words
     else:
         cleaned_words += words
 
     return Counter(cleaned_words)
-
+"""
 
 #print(remove_most_used_stopwords().most_common(10))
 
@@ -137,7 +144,7 @@ def count_all_positive():
         file_path1 = "aclImdb/train/pos/" + file
         positive = real_get_text(file_path1, 1)
         words = re.split("\s+", positive)
-        stopwords = ("the", "a", "is", "i")
+        stopwords = get_stopwords()
         all_words += [words for words in words if words not in stopwords]
     return Counter(all_words)
 
@@ -149,9 +156,11 @@ def count_all_negative():
         file_path2 = "aclImdb/train/neg/" + file
         negative = real_get_text(file_path2, -1)
         words = re.split("\s+", negative)
-        all_words += words
+        stopwords = get_stopwords()
+        all_words += [words for words in words if words not in stopwords]
     return Counter(all_words)
 
+print(count_all_negative().most_common(10))
 
 # Only retrieve words once.
 all_negative_words = count_all_negative()
@@ -232,7 +241,7 @@ def make_class_predictions(text, counts, class_prob, class_count):
         # (plus the class_count to also smooth the denominator).
         # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
         # We also smooth the denominator counts to keep things even.
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 350) / (sum(counts.values()) + class_count))
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.5) / (sum(counts.values()) + class_count))
     return prediction * class_prob
 
 
@@ -260,7 +269,6 @@ def error_rate(predicted, actual):
 
 # As you can see, we can now generate probabilities for which class a given review is part of.
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-<<<<<<< HEAD
 print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
 print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
                                                                prob_negative, negative_review_count)))
