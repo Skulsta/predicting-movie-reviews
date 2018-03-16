@@ -14,20 +14,35 @@ import re
 
 # List every file in the pos training folder
 # This one might be important. We can split by underscore and retrieve the review score using regex.
-from email.mime import base
 
+# An array with every file in the folder.
 positive_reviews = os.listdir("aclImdb/train/pos")
-# print(positive_reviews)
-
 negative_reviews = os.listdir("aclImdb/train/neg")
-# print(negative_reviews)
+
+
+# Read in the training data. Print length gives 25 000. print result gives all text.
+def read_training_data():
+    all_reviews = []
+    for file in positive_reviews:
+        file_text = open("aclImdb/train/pos/" + file, 'r', encoding="UTF-8", errors="ignore")
+        all_reviews += (file_text.readlines())
+        file_text.close()
+    for file in negative_reviews:
+        file_text = open("aclImdb/train/neg/" + file, 'r', encoding="UTF-8", errors="ignore")
+        all_reviews += (file_text.readlines())
+        file_text.close()
+    return all_reviews
+
+
+print(read_training_data())
+
 
 def get_stopwords():
     with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
         stopwords = myfile.read().replace('\n', ' ')
     return stopwords
 
-print(get_stopwords())
+# print(get_stopwords())
 
 
 # Give it the file path of a text file, and it will read the content.
@@ -38,6 +53,7 @@ def get_real_text(file_path):
     text_lines = file_text.readlines()
     print(text_lines)
     file_text.close()
+
 
 
 # Iterates through every review in a folder and calls the method to retrieve the content.
@@ -144,7 +160,7 @@ def count_all_positive():
         words = re.split("\s+", positive)
         stopwords = get_stopwords()
         all_words += [words for words in words if words not in stopwords]
-    return all_words
+    return Counter(all_words)
 
 #print(count_all_positive().most_common(5))
 
@@ -156,7 +172,7 @@ def count_all_negative():
         words = re.split("\s+", negative)
         stopwords = get_stopwords()
         all_words += [words for words in words if words not in stopwords]
-    return all_words
+    return Counter(all_words)
 
 #print(count_all_negative().most_common(5))
 
@@ -164,14 +180,14 @@ def count_all():
     count_all = count_all_negative() + count_all_positive()
     return Counter(count_all)
 
-print(count_all().most_common(5))
+# print(count_all().most_common(5))
 
-all_words_counted = count_all_positive() + count_all_negative()
+# all_words_counted = count_all_positive() + count_all_negative()
 
 
 # Only retrieve words once.
-all_negative_words = count_all_negative()
-all_positive_words = count_all_positive()
+# all_negative_words = count_all_negative()
+# all_positive_words = count_all_positive()
 
 
 def total_of_positive_words():
@@ -198,8 +214,8 @@ def total_of_negative_words():
     return totalNum
 
 
-total_pos = count_all_positive()
-total_neg = count_all_negative()
+# total_pos = count_all_positive()
+# total_neg = count_all_negative()
 
 
 def calculating_neg_weights(word):
@@ -221,7 +237,7 @@ def calculating_pos_weights(word):
 # print((count_all_negative().get("the")) / total_of_negative_words())
 
 
-test_review = "aclImdb/train/pos/0_9.txt"
+# test_review = "aclImdb/train/pos/0_9.txt"
 
 
 def get_y_count(reviews, score):
@@ -229,14 +245,14 @@ def get_y_count(reviews, score):
     return len([r for r in reviews if get_score(r) == score])
 
 
-positive_review_count = get_y_count(count_all_words(), 1)
-negative_review_count = get_y_count(count_all_words(), -1)
+# positive_review_count = get_y_count(positive_reviews, 1)
+# negative_review_count = get_y_count(negative_reviews, -1)
 
-prob_positive = positive_review_count / (positive_review_count + negative_review_count)
-prob_negative = negative_review_count / (positive_review_count + negative_review_count)
+# prob_positive = positive_review_count / (positive_review_count + negative_review_count)
+# prob_negative = negative_review_count / (positive_review_count + negative_review_count)
 
-test_neg = "aclImdb/test/neg/7_1.txt"
-test_pos = "aclImdb/test/pos/0_10.txt"
+# test_neg = "aclImdb/test/neg/7_1.txt"
+# test_pos = "aclImdb/test/pos/0_10.txt"
 
 
 def make_class_predictions(text, counts, class_prob, class_count):
@@ -252,10 +268,10 @@ def make_class_predictions(text, counts, class_prob, class_count):
     return prediction * class_prob
 
 
-prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
-prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
-print(prob_neg)
-print(prob_pos)
+# prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+# prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
+# print(prob_neg)
+# print(prob_pos)
 
 # 6453.23 makes everything positive
 # 6453.2 makes everything negative
@@ -268,7 +284,7 @@ def pos_or_neg(prob_pos, prob_neg):
     else:
         return 0
 
-print(pos_or_neg(prob_pos, prob_neg))
+# print(pos_or_neg(prob_pos, prob_neg))
 
 
 def error_rate_pos():
@@ -278,8 +294,8 @@ def error_rate_pos():
     for file in positive_reviews[:20]:
         file_path = "aclImdb/train/pos/" + file
         actual = get_score(file_path)
-        prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
-        prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+        prob_pos = make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)
+        prob_neg = make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)
         predicted = pos_or_neg(prob_pos, prob_neg)
         if predicted == actual:
             right += 1
@@ -298,8 +314,8 @@ def error_rate_neg():
     for file in negative_reviews[:20]:
         file_path = "aclImdb/train/neg/" + file
         actual = get_score(file_path)
-        prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
-        prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+        prob_pos = make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)
+        prob_neg = make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)
         predicted = pos_or_neg(prob_pos, prob_neg)
         if predicted == actual:
             right += 1
@@ -312,8 +328,8 @@ def error_rate_neg():
 
 
 
-error_rate_pos()
-error_rate_neg()
+# error_rate_pos()
+# error_rate_neg()
 
 # print(error_rate())
 # get_score(test_pos)
@@ -322,24 +338,24 @@ error_rate_neg()
 # As you can see, we can now generate probabilities for which class a given review is part of.
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
 
-print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
-                                                               prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words,
-                                                               prob_positive, positive_review_count)))
+# print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
+#                                                               prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words,
+#                                                               prob_positive, positive_review_count)))
 
-print("Review for test_review: {0}".format(retrieve_text(test_review)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words,
-                                                               prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words,
-                                                               prob_positive, positive_review_count)))
+# print("Review for test_review: {0}".format(retrieve_text(test_review)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words,
+#                                                               prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words,
+#                                                               prob_positive, positive_review_count)))
 
 
-print("Review for test_neg: {0}".format(retrieve_text(test_neg)))
-print("Negative prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_negative_words,
-                                                                            prob_negative, negative_review_count)))
-print("Positive prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_positive_words,
-                                                                            prob_positive, positive_review_count)))
+# print("Review for test_neg: {0}".format(retrieve_text(test_neg)))
+# print("Negative prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_negative_words,
+#                                                                            prob_negative, negative_review_count)))
+# print("Positive prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_positive_words,
+#                                                                            prob_positive, positive_review_count)))
 
 """
 def real_bayes_pos(text):
@@ -359,8 +375,8 @@ def real_bayes_pos(text):
     return res
 """
 
-print("Where real shit happens")
-print()
+# print("Where real shit happens")
+# print()
 
 
 # print(real_bayes_pos(retrieve_text(test_pos)))
