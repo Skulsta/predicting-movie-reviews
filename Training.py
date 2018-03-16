@@ -1,6 +1,4 @@
 from collections import Counter
-import collections
-
 import os.path
 import re
 
@@ -65,9 +63,6 @@ def get_text(reviews):
     # Join together the text in the reviews for a particular tone.
     # We lowercase to avoid "Not" and "not" being seen as different words, for example.
     return " ".join([r.lower() for r in get_content(reviews)])
-
-
-
 
 
 def get_stopwords():
