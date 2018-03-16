@@ -232,7 +232,7 @@ def make_class_predictions(text, counts, class_prob, class_count):
         # (plus the class_count to also smooth the denominator).
         # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
         # We also smooth the denominator counts to keep things even.
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 350) / (sum(counts.values()) + class_count))
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.2) / (sum(counts.values()) + class_count))
     return prediction * class_prob
 
 
@@ -241,8 +241,10 @@ prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, p
 print(prob_neg)
 print(prob_pos)
 
+# 6453.3 makes everything positive
+# 6453.2 makes everything negative
 
-def pos_or_neg(prob_neg, prob_pos):
+def pos_or_neg(prob_pos, prob_neg):
     if prob_pos > prob_neg:
         return 1
     elif prob_pos < prob_neg:
@@ -250,35 +252,77 @@ def pos_or_neg(prob_neg, prob_pos):
     else:
         return 0
 
-print(pos_or_neg(prob_neg, prob_pos))
+print(pos_or_neg(prob_pos, prob_neg))
 
-def error_rate(predicted, actual):
-    for file in positive_reviews:
+
+def error_rate_pos():
+    right = 0
+    wrong = 0
+    error = 0
+    for file in positive_reviews[:10]:
         file_path = "aclImdb/train/pos/" + file
+        actual = get_score(file_path)
+        prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
+        prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+        predicted = pos_or_neg(prob_pos, prob_neg)
+        if predicted == actual:
+            right += 1
+        elif not predicted == actual:
+            wrong += 1
+        else:
+            error += 1
+    print("right: " + str(right))
+    print("wrong: " + str(wrong))
+    print()
+
+def error_rate_neg():
+    right = 0
+    wrong = 0
+    error = 0
+    for file in negative_reviews[:10]:
+        file_path = "aclImdb/train/neg/" + file
+        actual = get_score(file_path)
+        prob_pos = make_class_predictions(retrieve_text(test_pos), all_positive_words, prob_positive, positive_review_count)
+        prob_neg = make_class_predictions(retrieve_text(test_pos), all_negative_words, prob_negative, negative_review_count)
+        predicted = pos_or_neg(prob_pos, prob_neg)
+        if predicted == actual:
+            right += 1
+        elif not predicted == actual:
+            wrong += 1
+        else:
+            error += 1
+    print("right: " + str(right))
+    print("wrong: " + str(wrong))
+
+
+
+error_rate_pos()
+error_rate_neg()
+
+# print(error_rate())
 # get_score(test_pos)
 
 
 # As you can see, we can now generate probabilities for which class a given review is part of.
 # The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-<<<<<<< HEAD
-print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
-                                                               prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words,
-                                                               prob_positive, positive_review_count)))
+# print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
+#                                                               prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words,
+#                                                               prob_positive, positive_review_count)))
 
-print("Review for test_review: {0}".format(retrieve_text(test_review)))
-print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words,
-                                                               prob_negative, negative_review_count)))
-print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words,
-                                                               prob_positive, positive_review_count)))
+# print("Review for test_review: {0}".format(retrieve_text(test_review)))
+# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words,
+#                                                               prob_negative, negative_review_count)))
+# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words,
+#                                                               prob_positive, positive_review_count)))
 
 
-print("Review for test_neg: {0}".format(retrieve_text(test_neg)))
-print("Negative prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_negative_words,
-                                                                            prob_negative, negative_review_count)))
-print("Positive prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_positive_words,
-                                                                            prob_positive, positive_review_count)))
+# print("Review for test_neg: {0}".format(retrieve_text(test_neg)))
+# print("Negative prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_negative_words,
+#                                                                            prob_negative, negative_review_count)))
+# print("Positive prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_positive_words,
+#                                                                            prob_positive, positive_review_count)))
 
 """
 def real_bayes_pos(text):
