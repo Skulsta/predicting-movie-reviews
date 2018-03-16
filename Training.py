@@ -108,13 +108,13 @@ def make_class_predictions(text, counts, class_prob, class_count):
     return prediction * class_prob
 
 
-""" TESTS - Uncomment to get cracy much insights.
-
+"""
 # Prints the text of a review.
 print(get_text(test_review))
+print(remove_stopwords(get_text(test_review)))
 
 # From 99 to 31 words after filtering.
-print("\nBefore and after filtering stopwords:")
+print("\nLength of a given review before and after filtering stopwords:")
 print(len(count_text(get_text(test_review))))
 print(len(remove_stopwords(get_text(test_review))))
 
