@@ -16,13 +16,18 @@ import re
 # This one might be important. We can split by underscore and retrieve the review score using regex.
 
 # An array with every file in the folder.
-positive_reviews = os.listdir("aclImdb/train/pos")
-negative_reviews = os.listdir("aclImdb/train/neg")
+positive_reviews_folder = "aclImdb/train/pos/"
+negative_reviews_folder = "aclImdb/train/neg/"
+positive_reviews = os.listdir(positive_reviews_folder)
+negative_reviews = os.listdir(negative_reviews_folder)
+
+test_review = "aclImdb/train/pos/0_9.txt"
 
 
 # Read in the training data. Print length gives 25 000. print result gives all text.
 def read_training_data():
     all_reviews = []
+    print("Reading all training data ...")
     for file in positive_reviews:
         file_text = open("aclImdb/train/pos/" + file, 'r', encoding="UTF-8", errors="ignore")
         all_reviews += (file_text.readlines())
@@ -34,33 +39,16 @@ def read_training_data():
     return all_reviews
 
 
-print(read_training_data())
+# All reviews can now be retrieved with this variable
+all_reviews = read_training_data()
 
 
-def get_stopwords():
-    with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
-        stopwords = myfile.read().replace('\n', ' ')
-    return stopwords
-
-# print(get_stopwords())
-
-
-# Give it the file path of a text file, and it will read the content.
-def get_real_text(file_path):
-    # Some files are not encoded correctly, ignoring those who fail to satisfy us.
-    file_text = open(file_path, 'r', encoding='UTF-8', errors='ignore')
-
+# # get_text needs this to get direct access to the text
+def get_content(review):
+    file_text = open(review, 'r', encoding='UTF-8', errors='ignore')
     text_lines = file_text.readlines()
-    print(text_lines)
     file_text.close()
-
-
-
-# Iterates through every review in a folder and calls the method to retrieve the content.
-def get_all_files():
-    for file in positive_reviews:
-        file_path = "aclImdb/train/pos/" + file
-        get_real_text(file_path)
+    return text_lines
 
 
 # Split filename by underscore, then split the second half and retrieve the review score.
@@ -76,22 +64,24 @@ def get_score(review):
         return 2
 
 
-def get_content(review):
-    file_text = open(review, 'r', encoding='UTF-8', errors='ignore')
-
-    text_lines = file_text.readlines()
-    # print(text_lines)
-    file_text.close()
-    return text_lines
+def get_text(reviews):
+    # Join together the text in the reviews for a particular tone.
+    # We lowercase to avoid "Not" and "not" being seen as different words, for example.
+    return " ".join([r.lower() for r in get_content(reviews)])
 
 
-def real_get_text(reviews, score):
-    return " ".join([r.lower() for r in get_content(reviews) if get_score(reviews) == score])
+# Prints the text of a review.
+# print(get_text(test_review))
 
 
-# Get text without worrying about the stupid score.
-def retrieve_text(review):
-    return " ".join([r.lower() for r in get_content(review)])
+
+def get_stopwords():
+    with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
+        stopwords = myfile.read().replace('\n', ' ')
+    return stopwords
+
+
+stopword = get_stopwords()
 
 
 def count_text(text):
@@ -101,143 +91,83 @@ def count_text(text):
     return Counter(words)
 
 
-def store_words(text):
-    counter = Counter()
-    words = re.split("\s+", text)
-    counter.update(words)
-
-
-def all_positive_reviews():
-    for file in positive_reviews:
-        file_path = "aclImdb/train/pos/" + file
-        positive = real_get_text(file_path, 1)
-        negative = real_get_text(file_path, -1)
-        #print("Hopefully some text: {0}".format(positive[:100]))
-        #print("Hopefully nothing: {0}".format(negative[:100]))
-
-        #This counts how many times every word is repeated in the given text
-        #print(count_text(real_get_text(file_path, 1)))
-
-def count_all_words():
-    all_words = []
-    for file in positive_reviews or negative_reviews:
-        file_path = ("aclImdb/train/pos/" + file) or ("aclImdb/train/neg/" + file)
-        positive = real_get_text(file_path, 1)
-        negative = real_get_text(file_path, -1)
-        poswords = re.split("\s+", positive)
-        negwords = re.split("\s+", negative)
-        all_words += poswords + negwords
-    return Counter(all_words)
+# Going through a review and filters out stopwords.
+def remove_stopwords(text):
+    filtered_result = []
+    for word in count_text(text):
+        if not stopword.__contains__(word):
+            filtered_result += word
+    return Counter(filtered_result)
 
 """
-def remove_most_used_stopwords():
-    all_words = count_all_words()
-    words = count_all_words()
-    cleaned_words = []
+# From 99 to 31 words after filtering.
+print("\nBefore and after filtering stopwords:")
+print(len(count_text(get_text(test_review))))
+print(len(remove_stopwords(get_text(test_review))))
 
-    if(words == stopwords):
-        all_words -=words
-    else:
-        cleaned_words += words
+# Total amount of words in a review
+print("\nTotal amount of words in a given review:")
+print(sum(count_text(get_text(test_review)).values()))
 
-    return Counter(cleaned_words)
+# Prints every word and how many times it occurres
+print("\nUsing count_text and get_text: ")
+print(count_text(get_text(test_review)))
 """
 
-#print(remove_most_used_stopwords().most_common(10))
+# Total amount of words in training set
+print("\nTotal amount of words in the training set:")
+total_number_of_words = 0
+for review in all_reviews:
+    total_number_of_words += (len(review))
+print(total_number_of_words)
 
-#print(count_all_words())
+# Total amount of words in training set after filtering
+print("\nTotal amount of words in the training set after filtering:\nGive me a second ...")
+total_number_of_words = 0
+for review in all_reviews:
+    total_number_of_words += (len(remove_stopwords(review)))
+print(total_number_of_words)
 
+# Total amount of words in positive training reviews
+print("\nTotal amount of words in positive training reviews:")
+total_number_of_words = 0
+for review in positive_reviews:
+    review_text = get_text(positive_reviews_folder + review)
+    total_number_of_words += len(review_text)
+print(total_number_of_words)
 
-# først ta inn alle ord
-# getScore skal sortere positiv og negativ
+# Total amount of words in positive reviews after filtering
+print("\nTotal amount of words in positive training reviews after filtering:")
+total_number_of_words = 0
+for review in positive_reviews:
+    review_text = get_text(positive_reviews_folder + review)
+    total_number_of_words += len(remove_stopwords(review_text))
+print(total_number_of_words)
 
+# Total amount of words in negative training reviews
+print("\nTotal amount of words in negative training reviews:")
+total_number_of_words = 0
+for review in negative_reviews:
+    review_text = get_text(negative_reviews_folder + review)
+    total_number_of_words += len(review_text)
+print(total_number_of_words)
 
-def count_all_positive():
-    all_words = []
-    for file in positive_reviews:
-        file_path1 = "aclImdb/train/pos/" + file
-        positive = real_get_text(file_path1, 1)
-        words = re.split("\s+", positive)
-        stopwords = get_stopwords()
-        all_words += [words for words in words if words not in stopwords]
-    return Counter(all_words)
-
-#print(count_all_positive().most_common(5))
-
-def count_all_negative():
-    all_words = []
-    for file in negative_reviews:
-        file_path2 = "aclImdb/train/neg/" + file
-        negative = real_get_text(file_path2, -1)
-        words = re.split("\s+", negative)
-        stopwords = get_stopwords()
-        all_words += [words for words in words if words not in stopwords]
-    return Counter(all_words)
-
-#print(count_all_negative().most_common(5))
-
-def count_all():
-    count_all = count_all_negative() + count_all_positive()
-    return Counter(count_all)
-
-# print(count_all().most_common(5))
-
-# all_words_counted = count_all_positive() + count_all_negative()
-
-
-# Only retrieve words once.
-# all_negative_words = count_all_negative()
-# all_positive_words = count_all_positive()
-
-
-def total_of_positive_words():
-    all_words = []
-    for file in positive_reviews:
-        file_path1 = "aclImdb/train/pos/" + file
-        positive = real_get_text(file_path1, 1)
-        words = re.split("\s+", positive)
-        if not words.equals("this"):
-            all_words += words
-        totalNum = len(all_words)
-    return totalNum
+# Total amount of words in negative reviews after filtering
+print("\nTotal amount of words in negative training reviews after filtering:")
+total_number_of_words = 0
+for review in negative_reviews:
+    review_text = get_text(negative_reviews_folder + review)
+    total_number_of_words += len(remove_stopwords(review_text))
+print(total_number_of_words)
 
 
-def total_of_negative_words():
-    all_words = []
-    for file in negative_reviews:
-        file_path2 = "aclImdb/train/neg/" + file
-        negative = real_get_text(file_path2, -1)
-        words = re.split("\s+", negative)
-        if not words.equals("this"):
-            all_words += words
-        totalNum = len(all_words)
-    return totalNum
+
+# Retrieving the total number of positive and negative traning reviews
+number_of_positive_reviews = (len(positive_reviews))
+number_of_negative_reviews = (len(negative_reviews))
 
 
-# total_pos = count_all_positive()
-# total_neg = count_all_negative()
 
-
-def calculating_neg_weights(word):
-    res = (all_negative_words.get(word, 0) + 1) / total_neg
-    return res
-
-
-def calculating_pos_weights(word):
-    res = (all_positive_words.get(word, 0) + 1) / total_pos
-    return res
-
-
-# print(calculating_neg_weights("the"))
-
-# print(total_of_positive_words())
-
-# print(total_of_negative_words())
-
-# print((count_all_negative().get("the")) / total_of_negative_words())
-
-
-# test_review = "aclImdb/train/pos/0_9.txt"
 
 
 def get_y_count(reviews, score):
@@ -307,89 +237,4 @@ def error_rate_pos():
     print("wrong: " + str(wrong))
     print()
 
-def error_rate_neg():
-    right = 0
-    wrong = 0
-    error = 0
-    for file in negative_reviews[:20]:
-        file_path = "aclImdb/train/neg/" + file
-        actual = get_score(file_path)
-        prob_pos = make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)
-        prob_neg = make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)
-        predicted = pos_or_neg(prob_pos, prob_neg)
-        if predicted == actual:
-            right += 1
-        elif not predicted == actual:
-            wrong += 1
-        else:
-            error += 1
-    print("right: " + str(right))
-    print("wrong: " + str(wrong))
 
-
-
-# error_rate_pos()
-# error_rate_neg()
-
-# print(error_rate())
-# get_score(test_pos)
-
-
-# As you can see, we can now generate probabilities for which class a given review is part of.
-# The probabilities themselves aren't very useful -- we make our classification decision based on which value is greater.
-
-# print("Review for test_pos: {0}".format(retrieve_text(test_pos)))
-# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_negative_words,
-#                                                               prob_negative, negative_review_count)))
-# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_pos), all_positive_words,
-#                                                               prob_positive, positive_review_count)))
-
-# print("Review for test_review: {0}".format(retrieve_text(test_review)))
-# print("Negative prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_negative_words,
-#                                                               prob_negative, negative_review_count)))
-# print("Positive prediction: {0}".format(make_class_predictions(retrieve_text(test_review), all_positive_words,
-#                                                               prob_positive, positive_review_count)))
-
-
-# print("Review for test_neg: {0}".format(retrieve_text(test_neg)))
-# print("Negative prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_negative_words,
-#                                                                            prob_negative, negative_review_count)))
-# print("Positive prediction for test_neg: {0}".format(make_class_predictions(retrieve_text(test_neg), all_positive_words,
-#                                                                            prob_positive, positive_review_count)))
-
-"""
-def real_bayes_pos(text):
-    pred1 = 1
-    pred2 = 1
-    smoothing = 0.1
-    text_counts = Counter(re.split("\s+", text))
-    for word in text_counts:
-        print(word)
-        if word in all_positive_words:
-            print(pred1)
-            pred1 *= calculating_pos_weights(word)
-        if word in all_negative_words:
-            print(pred2)
-            pred2 *= calculating_neg_weights(word)
-    res = (pred1*prob_pos)/((pred1*prob_pos) + (pred2*prob_neg))
-    return res
-"""
-
-# print("Where real shit happens")
-# print()
-
-
-# print(real_bayes_pos(retrieve_text(test_pos)))
-
-
-def train_all_positives():
-    for file in negative_reviews:
-        file_path = "aclImdb/train/neg/" + file
-        print()
-        print("Negative prediction: {0}".format(
-            make_class_predictions(retrieve_text(file_path), all_negative_words, prob_negative, negative_review_count)))
-        print("Positive prediction: {0}".format(
-            make_class_predictions(retrieve_text(file_path), all_positive_words, prob_positive, positive_review_count)))
-
-# Warning: uncomment the sentence below and shit will go on forever.
-# train_all_positives()
