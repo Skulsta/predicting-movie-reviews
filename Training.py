@@ -210,8 +210,8 @@ def pos_or_neg(prob_neg, prob_pos):
 print(pos_or_neg(prob_neg, prob_pos))
 
 def error_rate(predicted, actual):
-    # for file in reviews:
-        print("wo")
+    for file in positive_reviews:
+        file_path = "aclImdb/train/pos/" + file
 # get_score(test_pos)
 
 
