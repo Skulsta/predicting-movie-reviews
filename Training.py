@@ -113,8 +113,10 @@ def get_every_word_in_a_folder(folder, folder_path):
 
 print("Filtering stopwords from every review in training set ...")
 every_positive_word = get_every_word_in_a_folder(positive_reviews, positive_reviews_folder)
+print("Most common positive words: ")
 print(count_text(every_positive_word).most_common(5))
 every_negative_word = get_every_word_in_a_folder(negative_reviews, negative_reviews_folder)
+print("Most common negative words: ")
 print(count_text(every_negative_word).most_common(5))
 
 # print("Positive text sample: {0}".format(every_positive_word[:100]))
@@ -136,6 +138,33 @@ probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews
 probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
 
+# Where we left of. Testing.
+fake_review = "amazing"
+def get_word_weight(text):
+    text_counts = Counter(re.split("\s", text))
+    for word in text_counts:
+        print(word)
+        print(text_counts.get(word))
+        print(count_text(every_positive_word).get(word))
+        print(count_text(every_negative_word).get(word))
+        if count_text(every_positive_word).get(word) is None:
+            positive_word_weight = 1
+        else:
+            positive_word_weight = (text_counts.get(word) / (count_text(every_positive_word).get(word) + 1))
+        if count_text(every_negative_word).get(word) is None:
+            negative_word_weight = 1
+        else:
+            negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
+    prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
+    prediction_negative = negative_word_weight / (negative_word_weight + positive_word_weight)
+    print("Probability positive: " + str(prediction_positive))
+    print("Probability negative: " + str(prediction_negative))
+    return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
+
+
+print(get_word_weight(fake_review))
+
+
 def make_class_prediction(text):
     prediction = 1
     text_counts = Counter(re.split("\s", text))
@@ -150,19 +179,11 @@ def make_class_prediction(text):
         # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
         # We also smooth the denominator counts to keep things even.
         # print(every_positive_word.get(word) + 1)
-        if count_text(every_positive_word).get(word) is None:
-            positive_word_weight = 1
-        else:
-            positive_word_weight = (text_counts.get(word) / (count_text(every_positive_word).get(word) + 1))
-        if count_text(every_negative_word).get(word) is None:
-            negative_word_weight = 1
-        else:
-            negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
-        prediction *= (positive_word_weight / (positive_word_weight + negative_word_weight))
+        # prediction *= (positive_word_weight / (positive_word_weight + negative_word_weight))
         # print(text_counts.get(word) * ((every_positive_word.get(word) + 1) / (sum(every_positive_word.values()))))
     return prediction * probability_of_positive_reviews
 
-print(make_class_prediction(remove_stopwords(test_review)))
+# print(make_class_prediction(remove_stopwords(test_review)))
 
 
 # print("Review: {0}".format(remove_stopwords(test_negative_review)))
