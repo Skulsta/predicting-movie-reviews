@@ -41,7 +41,7 @@ def read_training_data():
 
 
 # All reviews can now be retrieved with this variable
-all_reviews = read_training_data()
+# all_reviews = read_training_data()
 
 
 # Split filename by underscore, then split the second half and retrieve the review score.
@@ -79,6 +79,10 @@ def count_text(text):
     return Counter(words)
 
 
+def array_to_string(array):
+    return " ".join([r.lower() for r in array])
+
+
 def remove_stopwords(text):
     words = re.split("\s+", get_text(text))
     for word in list(words):
@@ -105,7 +109,7 @@ def make_class_predictions(text, counts, class_prob, class_count):
     return prediction * class_prob
 
 
-# TESTS - Uncomment for them deep insights.
+""" # TESTS - Uncomment for them deep insights.
 # Prints the actual text of a review.
 print(get_text(test_review))
 
@@ -159,3 +163,13 @@ for review in negative_reviews:
     review_text = negative_reviews_folder + review
     total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
 print(total_number_of_words)
+
+# Get all text in positive reviews
+print("\nEvery word in negative training reviews after filtering:")
+all_text = []
+for review in negative_reviews:
+    review_text = negative_reviews_folder + review
+    all_text.append(remove_stopwords(review_text))
+actual_text = array_to_string(all_text)
+print(actual_text)
+"""
