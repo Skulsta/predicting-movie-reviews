@@ -5,7 +5,7 @@ import re
 # Tests at the bottom.
 # Important variables:
 # - test_review for testing stuff
-# - all_reviews is an array of every test files. 25 000 files.
+# - all_reviews is an array of every test files. 25 000 files. Uncomment if needed. It's at the top.
 # - stopword contains every word we have defined in our stopwords.txt file. Used to filter words from reviews.
 # - number_of_positive_reviews is the number of positive reviews. 12 500.
 # - number_of_negative_reviews is the number of negative reviews. 12 500.
@@ -35,7 +35,7 @@ def read_training_data():
 
 
 # All reviews can now be retrieved with this variable
-all_reviews = read_training_data()
+# all_reviews = read_training_data()
 
 
 # # get_text needs this to get direct access to the text
@@ -71,7 +71,7 @@ def get_stopwords():
     return stopwords
 
 
-stopword = get_stopwords()
+stopwords = get_stopwords()
 
 
 def count_text(text):
@@ -81,13 +81,15 @@ def count_text(text):
     return Counter(words)
 
 
-# Going through a review and filters out stopwords.
 def remove_stopwords(text):
-    filtered_result = []
-    for word in count_text(text):
-        if not stopword.__contains__(word):
-            filtered_result += word
-    return Counter(filtered_result)
+    words = re.split("\s+", get_text(text))
+    for word in list(words):
+        if word in stopwords:
+            words.remove(word)
+    return words
+
+
+remove_stopwords(test_review)
 
 
 # Retrieving the total number of positive and negative traning reviews
@@ -109,9 +111,11 @@ def make_class_predictions(text, counts, class_prob, class_count):
 
 
 """
-# Prints the text of a review.
+# Prints the actual text of a review.
 print(get_text(test_review))
-print(remove_stopwords(get_text(test_review)))
+
+# Prints an array of the words of a review after filtering.
+print(remove_stopwords(test_review))
 
 # From 99 to 31 words after filtering.
 print("\nLength of a given review before and after filtering stopwords:")
