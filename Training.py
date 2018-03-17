@@ -90,10 +90,23 @@ def remove_stopwords(text):
             words.remove(word)
     return ' '.join(words)
 
+# Total number of words across all files in a folder after being filtered.
+def get_total_number_of_words(folder, folder_path):
+    total_number_of_words = 0
+    for review in folder:
+        review_text = folder_path + review
+        total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
+    return total_number_of_words
 
-# Retrieving the total number of positive and negative traning reviews
+
+# Retrieving the total number of positive and negative training reviews
 number_of_positive_reviews = (len(positive_reviews))
 number_of_negative_reviews = (len(negative_reviews))
+
+positive_counts = get_total_number_of_words(positive_reviews, positive_reviews_folder)
+print(positive_counts)
+negative_counts = get_total_number_of_words(negative_reviews, negative_reviews_folder)
+print(negative_counts)
 
 
 def make_class_predictions(text, counts, class_prob, class_count):
@@ -111,10 +124,10 @@ def make_class_predictions(text, counts, class_prob, class_count):
 
 """ # TESTS - Uncomment for them deep insights.
 # Prints the actual text of a review.
-print(get_text(test_review))
+print("Review text before filtering: " + get_text(test_review))
 
 # Prints the actual text of a review after filtering stopwords
-print(remove_stopwords(test_review))
+print("Review text after filtering: " + remove_stopwords(test_review))
 
 # From 99 to 31 words after filtering.
 print("\nNumber of unique words in a given review before and after filtering stopwords:")
@@ -124,13 +137,13 @@ print(len(remove_stopwords(test_review)))
 # Total amount of words in a review
 print("\nTotal amount of words in a given review before and after filtering stopwords:")
 print(sum(count_text(get_text(test_review)).values()))
-print(sum(count_text(' '.join(remove_stopwords(test_review))).values()))
+print(sum(count_text(remove_stopwords(test_review)).values()))
 
 # Prints every word and how many times it occurres and the total number of words
 print("\nUsing count_text and get_text: ")
 print(count_text(get_text(test_review)))
 print("\nUsing count_text and (equivalent of) get_text after filtering: ")
-print(count_text(' '.join(remove_stopwords(test_review))))
+print(count_text(remove_stopwords(test_review)))
 
 # Total amount of words in positive training reviews
 print("\nTotal amount of words in positive training reviews:")
