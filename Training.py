@@ -1,3 +1,4 @@
+import plistlib
 from collections import Counter
 import os.path
 import re
@@ -11,6 +12,7 @@ import re
 # - number_of_negative_reviews is the number of negative reviews. 12 500.
 
 # An array with every file in the folder.
+
 positive_reviews_folder = "aclImdb/train/pos/"
 negative_reviews_folder = "aclImdb/train/neg/"
 positive_reviews = os.listdir(positive_reviews_folder)
@@ -19,31 +21,27 @@ negative_reviews = os.listdir(negative_reviews_folder)
 test_review = "aclImdb/train/pos/0_9.txt"
 
 
-# Read in the training data. Print length gives 25 000. print result gives all text.
-def read_training_data():
-    all_reviews = []
-    print("Reading all training data ...")
-    for file in positive_reviews:
-        file_text = open("aclImdb/train/pos/" + file, 'r', encoding="UTF-8", errors="ignore")
-        all_reviews += (file_text.readlines())
-        file_text.close()
-    for file in negative_reviews:
-        file_text = open("aclImdb/train/neg/" + file, 'r', encoding="UTF-8", errors="ignore")
-        all_reviews += (file_text.readlines())
-        file_text.close()
-    return all_reviews
-
-
-# All reviews can now be retrieved with this variable
-# all_reviews = read_training_data()
-
-
 # # get_text needs this to get direct access to the text
 def get_content(review):
     file_text = open(review, 'r', encoding='UTF-8', errors='ignore')
     text_lines = file_text.readlines()
     file_text.close()
     return text_lines
+
+
+# Read in the training data. Print length gives 25 000. print result gives all text.
+def read_training_data():
+    all_reviews = []
+    print("Reading all training data ...")
+    for file in positive_reviews:
+        all_reviews += "aclImdb/train/pos/" + file
+    for file in negative_reviews:
+        all_reviews += get_content("aclImdb/train/neg/" + file)
+    return all_reviews
+
+
+# All reviews can now be retrieved with this variable
+all_reviews = read_training_data()
 
 
 # Split filename by underscore, then split the second half and retrieve the review score.
@@ -89,9 +87,6 @@ def remove_stopwords(text):
     return words
 
 
-remove_stopwords(test_review)
-
-
 # Retrieving the total number of positive and negative traning reviews
 number_of_positive_reviews = (len(positive_reviews))
 number_of_negative_reviews = (len(negative_reviews))
@@ -110,54 +105,46 @@ def make_class_predictions(text, counts, class_prob, class_count):
     return prediction * class_prob
 
 
-"""
+# TESTS - Uncomment for them deep insights.
 # Prints the actual text of a review.
 print(get_text(test_review))
 
 # Prints an array of the words of a review after filtering.
 print(remove_stopwords(test_review))
+# Want the clean text of the sorted array? Here you go.
+print(' '.join(remove_stopwords(test_review)))
 
 # From 99 to 31 words after filtering.
 print("\nLength of a given review before and after filtering stopwords:")
 print(len(count_text(get_text(test_review))))
-print(len(remove_stopwords(get_text(test_review))))
+print(len(remove_stopwords(test_review)))
 
 # Total amount of words in a review
 print("\nTotal amount of words in a given review:")
 print(sum(count_text(get_text(test_review)).values()))
 
-# Prints every word and how many times it occurres
+# Prints every word and how many times it occurres and the total number of words
 print("\nUsing count_text and get_text: ")
 print(count_text(get_text(test_review)))
-
-# Total amount of words in training set
-print("\nTotal amount of words in the training set:")
-total_number_of_words = 0
-for review in all_reviews:
-    total_number_of_words += (len(review))
-print(total_number_of_words)
-
-# Total amount of words in training set after filtering
-print("\nTotal amount of words in the training set after filtering:\nGive me a second ...")
-total_number_of_words = 0
-for review in all_reviews:
-    total_number_of_words += (len(remove_stopwords(review)))
-print(total_number_of_words)
+print(sum(count_text(get_text(test_review)).values()))
+print("\nUsing count_text and (equivalent of) get_text after filtering: ")
+print(count_text(' '.join(remove_stopwords(test_review))))
+print(sum(count_text(' '.join(remove_stopwords(test_review))).values()))
 
 # Total amount of words in positive training reviews
 print("\nTotal amount of words in positive training reviews:")
 total_number_of_words = 0
 for review in positive_reviews:
     review_text = get_text(positive_reviews_folder + review)
-    total_number_of_words += len(review_text)
+    total_number_of_words += sum(count_text(review_text).values())
 print(total_number_of_words)
 
 # Total amount of words in positive reviews after filtering
 print("\nTotal amount of words in positive training reviews after filtering:")
 total_number_of_words = 0
 for review in positive_reviews:
-    review_text = get_text(positive_reviews_folder + review)
-    total_number_of_words += len(remove_stopwords(review_text))
+    review_text = positive_reviews_folder + review
+    total_number_of_words += sum(count_text(' '.join(remove_stopwords(review_text))).values())
 print(total_number_of_words)
 
 # Total amount of words in negative training reviews
@@ -165,14 +152,13 @@ print("\nTotal amount of words in negative training reviews:")
 total_number_of_words = 0
 for review in negative_reviews:
     review_text = get_text(negative_reviews_folder + review)
-    total_number_of_words += len(review_text)
+    total_number_of_words += sum(count_text(review_text).values())
 print(total_number_of_words)
 
 # Total amount of words in negative reviews after filtering
 print("\nTotal amount of words in negative training reviews after filtering:")
 total_number_of_words = 0
 for review in negative_reviews:
-    review_text = get_text(negative_reviews_folder + review)
-    total_number_of_words += len(remove_stopwords(review_text))
+    review_text = negative_reviews_folder + review
+    total_number_of_words += sum(count_text(' '.join(remove_stopwords(review_text))).values())
 print(total_number_of_words)
-"""
