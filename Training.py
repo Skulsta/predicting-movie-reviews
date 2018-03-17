@@ -99,14 +99,33 @@ def get_total_number_of_words(folder, folder_path):
     return total_number_of_words
 
 
-# Retrieving the total number of positive and negative training reviews
+# Get all text accross every file in a folder after being filtered.
+def get_every_word_in_a_folder(folder, folder_path):
+    all_text = []
+    for review in folder:
+        review_text = folder_path + review
+        all_text.append(remove_stopwords(review_text))
+    actual_text = array_to_string(all_text)
+    return actual_text
+
+
+every_positive_word = get_every_word_in_a_folder(positive_reviews, positive_reviews_folder)
+every_negative_word = get_every_word_in_a_folder(negative_reviews, negative_reviews_folder)
+
+print("Positive text sample: {0}".format(every_positive_word[:100]))
+print("Negative text sample: {0}".format(every_negative_word[:100]))
+
+# Total number of words in positive and negative reviews after filtering stopwords.
+number_of_positive_words = get_total_number_of_words(positive_reviews, positive_reviews_folder)
+print(number_of_positive_words)
+number_of_negative_words = get_total_number_of_words(negative_reviews, negative_reviews_folder)
+print(number_of_negative_words)
+
+# Retrieving the total number of positive and negative training reviews. (12 500 each)
 number_of_positive_reviews = (len(positive_reviews))
 number_of_negative_reviews = (len(negative_reviews))
 
-positive_counts = get_total_number_of_words(positive_reviews, positive_reviews_folder)
-print(positive_counts)
-negative_counts = get_total_number_of_words(negative_reviews, negative_reviews_folder)
-print(negative_counts)
+
 
 
 def make_class_predictions(text, counts, class_prob, class_count):
@@ -177,7 +196,7 @@ for review in negative_reviews:
     total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
 print(total_number_of_words)
 
-# Get all text in positive reviews
+# Get all text in negative reviews
 print("\nEvery word in negative training reviews after filtering:")
 all_text = []
 for review in negative_reviews:
