@@ -19,7 +19,7 @@ positive_reviews = os.listdir(positive_reviews_folder)
 negative_reviews = os.listdir(negative_reviews_folder)
 
 test_review = "aclImdb/train/pos/0_9.txt"
-
+test_negative_review = "aclImdb/train/neg/1_1.txt"
 
 # # get_text needs this to get direct access to the text
 def get_content(review):
@@ -30,15 +30,15 @@ def get_content(review):
 
 
 # Read in the training data. Print length gives 25 000. print result gives all text.
-def read_training_data():
-    all_reviews = []
-    print("Reading all training data ...")
+def number_of_reviews():
+    all_reviews = 0
     for file in positive_reviews:
-        all_reviews += "aclImdb/train/pos/" + file
+        # all_reviews += "aclImdb/train/pos/" + file
+        all_reviews += 1
     for file in negative_reviews:
-        all_reviews += get_content("aclImdb/train/neg/" + file)
+        # all_reviews += get_content("aclImdb/train/neg/" + file)
+        all_reviews += 1
     return all_reviews
-
 
 # All reviews can now be retrieved with this variable
 # all_reviews = read_training_data()
@@ -106,29 +106,29 @@ def get_every_word_in_a_folder(folder, folder_path):
         review_text = folder_path + review
         all_text.append(remove_stopwords(review_text))
     actual_text = array_to_string(all_text)
-    return actual_text
+    return Counter(actual_text)
 
 
 every_positive_word = get_every_word_in_a_folder(positive_reviews, positive_reviews_folder)
 every_negative_word = get_every_word_in_a_folder(negative_reviews, negative_reviews_folder)
 
-print("Positive text sample: {0}".format(every_positive_word[:100]))
-print("Negative text sample: {0}".format(every_negative_word[:100]))
+# print("Positive text sample: {0}".format(every_positive_word[:100]))
+# print("Negative text sample: {0}".format(every_negative_word[:100]))
 
 # Total number of words in positive and negative reviews after filtering stopwords.
 number_of_positive_words = get_total_number_of_words(positive_reviews, positive_reviews_folder)
-print(number_of_positive_words)
 number_of_negative_words = get_total_number_of_words(negative_reviews, negative_reviews_folder)
-print(number_of_negative_words)
 
 # Retrieving the total number of positive and negative training reviews. (12 500 each)
 number_of_positive_reviews = (len(positive_reviews))
 number_of_negative_reviews = (len(negative_reviews))
 
+# Probability of an arbitrary review being positive or negative. Will be 0.5 for both
+probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews()
+probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
 
-
-def make_class_predictions(text, counts, class_prob, class_count):
+def make_class_prediction(text, counts, class_prob, class_count):
     prediction = 1
     text_counts = Counter(re.split("\s", text))
     for word in text_counts:
@@ -137,8 +137,13 @@ def make_class_predictions(text, counts, class_prob, class_count):
         # (plus the class_count to also smooth the denominator).
         # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
         # We also smooth the denominator counts to keep things even.
-        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 6453.23) / (sum(counts.values()) + class_count))
+        prediction *= text_counts.get(word) * ((counts.get(word, 0) + 10000000) / (sum(counts.values()) + class_count))
     return prediction * class_prob
+
+
+print("Review: {0}".format(remove_stopwords(test_negative_review)))
+print("Positive prediction: {0}".format(make_class_prediction(remove_stopwords(test_negative_review), every_positive_word, probability_of_positive_reviews, number_of_positive_reviews)))
+print("Negative prediction: {0}".format(make_class_prediction(remove_stopwords(test_negative_review), every_negative_word, probability_of_negative_reviews, number_of_negative_reviews)))
 
 
 """ # TESTS - Uncomment for them deep insights.
