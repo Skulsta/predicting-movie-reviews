@@ -136,7 +136,7 @@ fake_review = "amazing great love"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
-    product_of_negativee = 1
+    product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
         print(word)
@@ -150,12 +150,12 @@ def get_word_weight(text):
         if not count_text(every_negative_word).get(word) is None:
             # negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
             negative_word_weight = (count_text(every_negative_word).get(word)) / number_of_negative_words
-            product_of_negativee *= negative_word_weight
+            product_of_negative *= negative_word_weight
     print("Product of weight of positive and negative")
     print(product_of_positive)
-    print(product_of_negativee)
+    print(product_of_negative)
     prediction = (product_of_positive * probability_of_positive_reviews) / \
-                 (product_of_positive * probability_of_positive_reviews + product_of_negativee * probability_of_negative_reviews)
+                 (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
         # positive_word_weight * probability_of_positive_reviews
     # prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
@@ -227,7 +227,7 @@ def get_predictions(folder_file, folder_path):
 
 # get_predictions(negative_reviews, negative_reviews_folder)
 
-""" # TESTS - Uncomment for them deep insights.
+# TESTS - Uncomment for them deep insights.
 # Prints the actual text of a review.
 print("Review text before filtering: " + get_text(test_review))
 
@@ -298,5 +298,3 @@ print(count_text(every_negative_word).most_common(5))
 
 print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
-
-"""
