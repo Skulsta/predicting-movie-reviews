@@ -73,6 +73,15 @@ def get_stopwords():
 stopwords = get_stopwords()
 
 
+def remove_stopwords(text):
+    filtered_words = []
+    words = re.split("\s+", get_text(text))
+    for word in words:
+        if word not in stopwords:
+            filtered_words.append(word)
+    return ' '.join(filtered_words)
+
+
 def count_text(text):
     # Split text into words based on whitespace.
     words = re.split("\s+", text)
@@ -84,19 +93,12 @@ def array_to_string(array):
     return ' '.join(array)
 
 
-def remove_stopwords(text):
-    words = re.split("\s+", get_text(text))
-    for word in list(words):
-        if word in stopwords:
-            words.remove(word)
-    return ' '.join(words)
-
 # Total number of words across all files in a folder after being filtered.
 def get_total_number_of_words(folder, folder_path):
     total_number_of_words = 0
     for review in folder:
         review_text = folder_path + review
-        total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
+        total_number_of_words += sum(count_text(get_text(review_text)).values())
     return total_number_of_words
 
 
@@ -130,6 +132,20 @@ probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews
 probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
 
+def remove_uncommon_words(text):
+    without_stopwords = remove_stopwords(text)
+    filtered_words = []
+    words = re.split("\s+", without_stopwords)
+    for word in words:
+        occurrence_in_positive_reviews = count_text(every_positive_word).get(word)
+        occurrence_in_negative_reviews = count_text(every_negative_word).get(word)
+        if occurrence_in_positive_reviews is not None and occurrence_in_negative_reviews is not None:
+            if occurrence_in_positive_reviews > 100 or occurrence_in_negative_reviews > 100:
+                filtered_words.append(word)
+    return ' '.join(filtered_words)
+
+
+
 # Where we left of. Testing.
 fake_review = "worst crap"
 
@@ -139,25 +155,20 @@ def get_word_weight(text):
     product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
-        print(word)
-        print(text_counts.get(word))
-        print(count_text(every_positive_word).get(word))
-        print(count_text(every_negative_word).get(word))
+        # print(word)
+        # print(text_counts.get(word))
+        # print(count_text(every_positive_word).get(word))
+        # print(count_text(every_negative_word).get(word))
         word_occurences_in_positive_review = count_text(every_positive_word).get(word)
         word_occurences_in_negative_review = count_text(every_negative_word).get(word)
-        if word_occurences_in_positive_review is None:
-            word_occurences_in_positive_review = 50
-        if word_occurences_in_negative_review is None:
-            word_occurences_in_negative_review = 50
-        if word_occurences_in_positive_review > 100 or word_occurences_in_negative_review > 100:
-            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(word)
-            product_of_positive *= positive_word_weight
-            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** text_counts.get(word)
-            product_of_negative *= negative_word_weight
-            print("Was checked in both")
-    print("Product of weight of positive and negative")
-    print(product_of_positive)
-    print(product_of_negative)
+        positive_word_weight = (word_occurences_in_positive_review / number_of_positive_words) ** text_counts.get(word)
+        product_of_positive *= positive_word_weight
+        negative_word_weight = (word_occurences_in_negative_review / number_of_negative_words) ** text_counts.get(word)
+        product_of_negative *= negative_word_weight
+        # print("Was checked in both")
+    # print("Product of weight of positive and negative")
+    # print(product_of_positive)
+    # print(product_of_negative)
     print("Result: ")
     # Multinomial Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
@@ -171,7 +182,8 @@ def get_word_weight(text):
     # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
-print(get_word_weight(remove_stopwords(test_negative_review)))
+# print(get_word_weight(remove_stopwords(test_negative_review)))
+print(get_word_weight(remove_uncommon_words(test_positive_review)))
 
 
 def make_class_prediction(text):
@@ -226,7 +238,7 @@ def get_predictions(folder_file, folder_path):
 
         return prediction
 
-print(get_predictions(positive_test_reviews, positive_test_reviews_folder))
+# print(get_predictions(positive_test_reviews, positive_test_reviews_folder))
 
 """
 # TESTS - Uncomment for them deep insights.
