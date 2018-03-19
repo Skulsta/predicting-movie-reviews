@@ -135,6 +135,11 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # Where we left of. Testing.
 fake_review = "worst crap"
 
+<< << << < HEAD
+
+== == == =
+>> >> >> > b6f5b7e8641bd2054abf5758078766e5b699bdd4
+
 
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
@@ -167,7 +172,7 @@ def get_word_weight(text):
     # Multinomial Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
                  (
-                             product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
+                         product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
     # positive_word_weight * probability_of_positive_reviews
     # prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
@@ -222,12 +227,19 @@ def make_decision(text):
     return 1
 
 
+positive_test_reviews_folder = "aclImdb/test/pos/"
+negative_test_reviews_folder = "aclImdb/test/neg/"
+positive_test_reviews = os.listdir(positive_test_reviews_folder)
+negative_test_reviews = os.listdir(negative_test_reviews_folder)
+
+
 # print(make_decision(remove_stopwords(test_negative_review)))
 
 
 def get_predictions(folder_file, folder_path):
-    for review in folder_file[:5]:
+    for review in folder_file[:1]:
         review_file = folder_path + review
+
         positive_prediction = make_class_prediction(remove_stopwords(review_file), every_positive_word,
                                                     probability_of_positive_reviews, number_of_positive_reviews)
         negative_prediction = make_class_prediction(remove_stopwords(review_file), every_negative_word,
@@ -241,8 +253,12 @@ def get_predictions(folder_file, folder_path):
         else:
             print(1)
 
+        prediction = get_word_weight(remove_stopwords(review_file))
 
-# get_predictions(negative_reviews, negative_reviews_folder)
+        return prediction
+
+
+print(get_predictions(positive_test_reviews, positive_test_reviews_folder))
 
 """
 # TESTS - Uncomment for them deep insights.
