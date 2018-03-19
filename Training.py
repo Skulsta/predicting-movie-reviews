@@ -135,11 +135,6 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # Where we left of. Testing.
 fake_review = "worst crap"
 
-<< << << < HEAD
-
-== == == =
->> >> >> > b6f5b7e8641bd2054abf5758078766e5b699bdd4
-
 
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
@@ -334,13 +329,12 @@ print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
 """
 
-
-def calc_err():
+"""
+def calc_err_pos():
     pos = 0
-    neg = 0
     res = 0
     for output in get_predictions():
         if output == 1:
             pos += 1
-        elif output == -1:
-            neg += 1
+    res =
+    """"
