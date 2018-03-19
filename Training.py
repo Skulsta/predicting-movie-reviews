@@ -21,6 +21,7 @@ test_review = "aclImdb/train/pos/0_9.txt"
 test_negative_review = "aclImdb/train/neg/1_1.txt"
 test_positive_review = "aclImdb/train/pos/5_10.txt"
 
+
 # # get_text needs this to get direct access to the text
 def get_content(review):
     file_text = open(review, 'r', encoding='UTF-8', errors='ignore')
@@ -39,6 +40,7 @@ def number_of_reviews():
         # all_reviews += get_content("aclImdb/train/neg/" + file)
         all_reviews += 1
     return all_reviews
+
 
 # All reviews can now be retrieved with this variable
 # all_reviews = read_training_data()
@@ -91,6 +93,7 @@ def remove_stopwords(text):
             words.remove(word)
     return ' '.join(words)
 
+
 # Total number of words across all files in a folder after being filtered.
 def get_total_number_of_words(folder, folder_path):
     total_number_of_words = 0
@@ -129,9 +132,10 @@ print("Calculating the probability of an arbitrary review being positive or nega
 probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews()
 probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
-
 # Where we left of. Testing.
 fake_review = "worst crap"
+
+
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
@@ -149,9 +153,11 @@ def get_word_weight(text):
         if word_occurences_in_negative_review is None:
             word_occurences_in_negative_review = 50
         if word_occurences_in_positive_review > 100 or word_occurences_in_negative_review > 100:
-            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(word)
+            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(
+                word)
             product_of_positive *= positive_word_weight
-            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** text_counts.get(word)
+            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** text_counts.get(
+                word)
             product_of_negative *= negative_word_weight
             print("Was checked in both")
     print("Product of weight of positive and negative")
@@ -160,9 +166,10 @@ def get_word_weight(text):
     print("Result: ")
     # Multinomial Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
-                 (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
+                 (
+                             product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
-        # positive_word_weight * probability_of_positive_reviews
+    # positive_word_weight * probability_of_positive_reviews
     # prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
     # prediction_negative = negative_word_weight / (negative_word_weight + positive_word_weight)
     # print("Probability positive: " + str(prediction_positive))
@@ -191,6 +198,7 @@ def make_class_prediction(text):
         # print(text_counts.get(word) * ((every_positive_word.get(word) + 1) / (sum(every_positive_word.values()))))
     return prediction * probability_of_positive_reviews
 
+
 # print(make_class_prediction(remove_stopwords(test_review)))
 
 
@@ -201,14 +209,16 @@ def make_class_prediction(text):
 
 def make_decision(text):
     # Compute the negative and positive probabilities.
-    positive_prediction = make_class_prediction(text, every_positive_word, probability_of_positive_reviews, number_of_positive_reviews)
-    negative_prediction = make_class_prediction(text, every_negative_word, probability_of_negative_reviews, number_of_negative_reviews)
+    positive_prediction = make_class_prediction(text, every_positive_word, probability_of_positive_reviews,
+                                                number_of_positive_reviews)
+    negative_prediction = make_class_prediction(text, every_negative_word, probability_of_negative_reviews,
+                                                number_of_negative_reviews)
     print(positive_prediction)
     print(negative_prediction)
 
     # We assign a classification based on which probability is greater.
     if negative_prediction > positive_prediction:
-      return -1
+        return -1
     return 1
 
 
@@ -218,8 +228,10 @@ def make_decision(text):
 def get_predictions(folder_file, folder_path):
     for review in folder_file[:5]:
         review_file = folder_path + review
-        positive_prediction = make_class_prediction(remove_stopwords(review_file), every_positive_word, probability_of_positive_reviews, number_of_positive_reviews)
-        negative_prediction = make_class_prediction(remove_stopwords(review_file), every_negative_word, probability_of_negative_reviews, number_of_negative_reviews)
+        positive_prediction = make_class_prediction(remove_stopwords(review_file), every_positive_word,
+                                                    probability_of_positive_reviews, number_of_positive_reviews)
+        negative_prediction = make_class_prediction(remove_stopwords(review_file), every_negative_word,
+                                                    probability_of_negative_reviews, number_of_negative_reviews)
         print(positive_prediction)
         print(negative_prediction)
 
@@ -305,3 +317,14 @@ print(count_text(every_negative_word).most_common(5))
 print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
 """
+
+
+def calc_err():
+    pos = 0
+    neg = 0
+    res = 0
+    for output in get_predictions():
+        if output == 1:
+            pos += 1
+        elif output == -1:
+            neg += 1
