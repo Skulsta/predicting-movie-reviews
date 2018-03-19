@@ -136,7 +136,6 @@ def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
     product_of_negative = 1
-    accepted_word = False
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
         print(word)
@@ -149,12 +148,12 @@ def get_word_weight(text):
             word_occurences_in_positive_review = 100
         if word_occurences_in_negative_review is None:
             word_occurences_in_negative_review = 100
-            if word_occurences_in_positive_review > 100 or word_occurences_in_negative_review > 100:
-                positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(word)
-                product_of_positive *= positive_word_weight
-                negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** text_counts.get(word)
-                product_of_negative *= negative_word_weight
-                print("Was checked in both")
+        if word_occurences_in_positive_review > 100 or word_occurences_in_negative_review > 100:
+            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(word)
+            product_of_positive *= positive_word_weight
+            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** text_counts.get(word)
+            product_of_negative *= negative_word_weight
+            print("Was checked in both")
     print("Product of weight of positive and negative")
     print(product_of_positive)
     print(product_of_negative)
