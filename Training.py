@@ -131,7 +131,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # Where we left of. Testing.
-fake_review = "the world is lovely amazing"
+fake_review = "worst crap"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
@@ -145,9 +145,9 @@ def get_word_weight(text):
         word_occurences_in_positive_review = count_text(every_positive_word).get(word)
         word_occurences_in_negative_review = count_text(every_negative_word).get(word)
         if word_occurences_in_positive_review is None:
-            word_occurences_in_positive_review = 100
+            word_occurences_in_positive_review = 50
         if word_occurences_in_negative_review is None:
-            word_occurences_in_negative_review = 100
+            word_occurences_in_negative_review = 50
         if word_occurences_in_positive_review > 100 or word_occurences_in_negative_review > 100:
             positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** text_counts.get(word)
             product_of_positive *= positive_word_weight
@@ -170,7 +170,7 @@ def get_word_weight(text):
     # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
-print(get_word_weight(fake_review))
+print(get_word_weight(remove_stopwords(test_negative_review)))
 
 
 def make_class_prediction(text):
