@@ -140,7 +140,7 @@ def get_word_weight(text):
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
         word_occurences_in_positive_review = count_text(every_positive_word).get(word)
-        word_occurences_in_negative_review = count_text(every_positive_word).get(word)
+        word_occurences_in_negative_review = count_text(every_negative_word).get(word)
         print(word)
         print(text_counts.get(word))
         print(count_text(every_positive_word).get(word))
