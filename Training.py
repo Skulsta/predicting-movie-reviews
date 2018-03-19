@@ -329,12 +329,23 @@ print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
 """
 
-"""
+
 def calc_err_pos():
     pos = 0
     res = 0
     for output in get_predictions():
-        if output == 1:
+        if output > 0.5:
             pos += 1
-    res =
-    """"
+    res = res / number_of_positive_reviews
+    return res
+
+
+def calc_err_neg():
+    neg = 0
+    res = 0
+    for output in get_predictions():
+        if output < 0.5:
+            neg += 1
+    res = res / number_of_negative_reviews
+    return res
+
