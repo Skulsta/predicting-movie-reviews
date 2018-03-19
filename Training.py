@@ -145,7 +145,7 @@ def get_word_weight(text):
         print(count_text(every_negative_word).get(word))
         word_occurences_in_positive_review = count_text(every_positive_word).get(word)
         word_occurences_in_negative_review = count_text(every_negative_word).get(word)
-        if word_occurences_in_positive_review.get is None:
+        if word_occurences_in_positive_review is None:
             word_occurences_in_positive_review = 100
         if word_occurences_in_negative_review is None:
             word_occurences_in_negative_review = 100
