@@ -132,11 +132,11 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # Where we left of. Testing.
-fake_review = "amazing great love"
+fake_review = "great amazing so lovely but also terrible"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
-    product_of_negativee = 1
+    product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
         print(word)
@@ -150,12 +150,13 @@ def get_word_weight(text):
         if not count_text(every_negative_word).get(word) is None:
             # negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
             negative_word_weight = (count_text(every_negative_word).get(word)) / number_of_negative_words
-            product_of_negativee *= negative_word_weight
+            product_of_negative *= negative_word_weight
     print("Product of weight of positive and negative")
     print(product_of_positive)
-    print(product_of_negativee)
+    print(product_of_negative)
     prediction = (product_of_positive * probability_of_positive_reviews) / \
-                 (product_of_positive * probability_of_positive_reviews + product_of_negativee * probability_of_negative_reviews)
+                 (product_of_positive * probability_of_positive_reviews + product_of_negative
+                  * probability_of_negative_reviews)
     return prediction
         # positive_word_weight * probability_of_positive_reviews
     # prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
@@ -165,7 +166,7 @@ def get_word_weight(text):
     # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
-print(get_word_weight(remove_stopwords(test_review)))
+print(get_word_weight(fake_review))
 
 
 def make_class_prediction(text):
