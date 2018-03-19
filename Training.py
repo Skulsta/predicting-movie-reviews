@@ -131,8 +131,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # Where we left of. Testing.
-fake_review = "great amazing so lovely but also terrible amazing"
-fake_review = "amazing great love"
+fake_review = "amazing great love amazing"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
@@ -148,13 +147,13 @@ def get_word_weight(text):
         if not count_text(every_positive_word).get(word) is None and word_occurences_in_positive_review > 100:
             # positive_word_weight = (text_counts.get(word) / (count_text(every_positive_word).get(word) + 1))
             positive_word_weight = (word_occurences_in_positive_review) / number_of_positive_words
-            product_of_positive *= positive_word_weight
             print("Was checked in positive")
         if not count_text(every_negative_word).get(word) is None and word_occurences_in_negative_review > 100:
             # negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
             negative_word_weight = (word_occurences_in_negative_review) / number_of_negative_words
-            product_of_negative *= negative_word_weight
             print("Was checked in negative")
+    product_of_positive *= positive_word_weight
+    product_of_negative *= negative_word_weight
     print("Product of weight of positive and negative")
     print(product_of_positive)
     print(product_of_negative)
@@ -169,7 +168,7 @@ def get_word_weight(text):
     # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
-print(get_word_weight(remove_stopwords(test_review)))
+print(get_word_weight(fake_review))
 
 
 def make_class_prediction(text):
@@ -231,6 +230,7 @@ def get_predictions(folder_file, folder_path):
 
 # get_predictions(negative_reviews, negative_reviews_folder)
 
+"""
 # TESTS - Uncomment for them deep insights.
 # Prints the actual text of a review.
 print("Review text before filtering: " + get_text(test_review))
@@ -302,3 +302,4 @@ print(count_text(every_negative_word).most_common(5))
 
 print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
+"""
