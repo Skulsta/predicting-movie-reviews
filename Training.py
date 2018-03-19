@@ -131,7 +131,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # Where we left of. Testing.
-fake_review = "the world is lovely amazing"
+fake_review = "dhdh"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
@@ -170,8 +170,8 @@ def get_word_weight(text):
     # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
-print(get_word_weight(fake_review))
-
+#print(get_word_weight(fake_review))
+#print(get_word_weight(remove_stopwords(test_review)))
 
 def make_class_prediction(text):
     prediction = 1
@@ -211,26 +211,21 @@ def make_decision(text):
       return -1
     return 1
 
-
+positive_test_reviews_folder = "aclImdb/test/pos/"
+negative_test_reviews_folder = "aclImdb/test/neg/"
+positive_test_reviews = os.listdir(positive_test_reviews_folder)
+negative_test_reviews = os.listdir(negative_test_reviews_folder)
 # print(make_decision(remove_stopwords(test_negative_review)))
 
 
 def get_predictions(folder_file, folder_path):
-    for review in folder_file[:5]:
+    for review in folder_file[:1]:
         review_file = folder_path + review
-        positive_prediction = make_class_prediction(remove_stopwords(review_file), every_positive_word, probability_of_positive_reviews, number_of_positive_reviews)
-        negative_prediction = make_class_prediction(remove_stopwords(review_file), every_negative_word, probability_of_negative_reviews, number_of_negative_reviews)
-        print(positive_prediction)
-        print(negative_prediction)
+        prediction = get_word_weight(remove_stopwords(review_file))
 
-        # We assign a classification based on which probability is greater.
-        if negative_prediction > positive_prediction:
-            print(-1)
-        else:
-            print(1)
+        return prediction
 
-
-# get_predictions(negative_reviews, negative_reviews_folder)
+print(get_predictions(positive_test_reviews, positive_test_reviews_folder))
 
 """
 # TESTS - Uncomment for them deep insights.
