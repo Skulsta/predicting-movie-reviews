@@ -145,10 +145,10 @@ def get_word_weight(text):
         print(count_text(every_positive_word).get(word))
         print(count_text(every_negative_word).get(word))
         if not count_text(every_positive_word).get(word) is None and word_occurences_in_positive_review > 100:
-            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ^ 2
+            positive_word_weight = ((word_occurences_in_positive_review) / number_of_positive_words) ** 2
             print("Was checked in positive")
         if not count_text(every_negative_word).get(word) is None and word_occurences_in_negative_review > 100:
-            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ^ 2
+            negative_word_weight = ((word_occurences_in_negative_review) / number_of_negative_words) ** 2
             print("Was checked in negative")
     product_of_positive *= positive_word_weight
     product_of_negative *= negative_word_weight
