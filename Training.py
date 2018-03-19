@@ -1,4 +1,3 @@
-import plistlib
 from collections import Counter
 import os.path
 import re
@@ -132,25 +131,29 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # Where we left of. Testing.
-fake_review = "great amazing so lovely but also terrible"
+fake_review = "great amazing so lovely but also terrible amazing"
 def get_word_weight(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
     product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
+        word_occurences_in_positive_review = count_text(every_positive_word).get(word)
+        word_occurences_in_negative_review = count_text(every_positive_word).get(word)
         print(word)
         print(text_counts.get(word))
         print(count_text(every_positive_word).get(word))
         print(count_text(every_negative_word).get(word))
-        if not count_text(every_positive_word).get(word) is None:
+        if not count_text(every_positive_word).get(word) is None and word_occurences_in_positive_review > 100:
             # positive_word_weight = (text_counts.get(word) / (count_text(every_positive_word).get(word) + 1))
-            positive_word_weight = (count_text(every_positive_word).get(word)) / number_of_positive_words
+            positive_word_weight = (word_occurences_in_positive_review) / number_of_positive_words
             product_of_positive *= positive_word_weight
-        if not count_text(every_negative_word).get(word) is None:
+            print("Was checked in positive")
+        if not count_text(every_negative_word).get(word) is None and word_occurences_in_negative_review > 100:
             # negative_word_weight = (text_counts.get(word) / (count_text(every_negative_word).get(word) + 1))
-            negative_word_weight = (count_text(every_negative_word).get(word)) / number_of_negative_words
+            negative_word_weight = (word_occurences_in_negative_review) / number_of_negative_words
             product_of_negative *= negative_word_weight
+            print("Was checked in negative")
     print("Product of weight of positive and negative")
     print(product_of_positive)
     print(product_of_negative)
