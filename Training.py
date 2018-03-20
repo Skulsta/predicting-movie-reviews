@@ -1,3 +1,4 @@
+import string
 from collections import Counter
 import os.path
 import re
@@ -10,16 +11,16 @@ import re
 # - number_of_positive_reviews is the number of positive reviews. 12 500.
 # - number_of_negative_reviews is the number of negative reviews. 12 500.
 
-# An array with every file in the folder.
+# An array with every file in the training folders.
 
-positive_reviews_folder = "aclImdb/train/pos/"
-negative_reviews_folder = "aclImdb/train/neg/"
-positive_reviews = os.listdir(positive_reviews_folder)
-negative_reviews = os.listdir(negative_reviews_folder)
+positive_train_reviews_folder = "aclImdb/train/pos/"
+negative_train_reviews_folder = "aclImdb/train/neg/"
+positive_train_reviews = os.listdir(positive_train_reviews_folder)
+negative_train_reviews = os.listdir(negative_train_reviews_folder)
 
-test_review = "aclImdb/train/pos/0_9.txt"
-test_negative_review = "aclImdb/train/neg/1_1.txt"
-test_positive_review = "aclImdb/train/pos/5_10.txt"
+test_review = "aclImdb/test/pos/0_10.txt"
+test_negative_review = "aclImdb/test/neg/0_2.txt"
+test_positive_review = "aclImdb/test/pos/4_10.txt"
 
 
 # # get_text needs this to get direct access to the text
@@ -33,10 +34,10 @@ def get_content(review):
 # Read in the training data. Print length gives 25 000. print result gives all text.
 def number_of_reviews():
     all_reviews = 0
-    for file in positive_reviews:
+    for file in positive_train_reviews:
         # all_reviews += "aclImdb/train/pos/" + file
         all_reviews += 1
-    for file in negative_reviews:
+    for file in negative_train_reviews:
         # all_reviews += get_content("aclImdb/train/neg/" + file)
         all_reviews += 1
     return all_reviews
@@ -72,6 +73,8 @@ def get_vocabulary():
     return stopwords
 
 
+# Retrieve stopwords from a seperate text file containing a list of stopwords. These will later be filtered out to
+# achieve higher effiency and effectiveness.
 def get_stopwords():
     print("Getting stopwords from file ...")
     with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
@@ -79,12 +82,13 @@ def get_stopwords():
     return stopwords
 
 
-
 vocabulary = get_vocabulary()
 
+# Instantiate the stopwords into a variable to be used later, so to avoid repeating the process more than necessary.
 stopwords = get_stopwords()
 
 
+# Filters out the stopwords from a given text.
 def remove_stopwords(text):
     filtered_words = []
     words = re.split("\s+", get_text(text))
@@ -93,11 +97,11 @@ def remove_stopwords(text):
             filtered_words.append(word)
     return ' '.join(filtered_words)
 
-
+# Split text and counts occurrences of each word in text.
 def count_text(text):
     # Split text into words based on whitespace.
     words = re.split("\s+", text)
-    # Count up the occurence of each word.
+    # Count up the occurrences of each word.
     return Counter(words)
 
 
@@ -124,19 +128,19 @@ def get_every_word_in_a_folder(folder, folder_path):
     return actual_text
 
 
-print("Filtering stopwords from every review in training set (not filtering anymore) ...")
-every_positive_word = get_every_word_in_a_folder(positive_reviews, positive_reviews_folder)
-every_negative_word = get_every_word_in_a_folder(negative_reviews, negative_reviews_folder)
+print("Filtering stopwords from every review in training set ...")
+every_positive_word = get_every_word_in_a_folder(positive_train_reviews, positive_train_reviews_folder)
+every_negative_word = get_every_word_in_a_folder(negative_train_reviews, negative_train_reviews_folder)
 
 # Total number of words in positive and negative reviews after filtering stopwords.
 print("Calculating the total number of words within both categories ...")
-number_of_positive_words = get_total_number_of_words(positive_reviews, positive_reviews_folder)
-number_of_negative_words = get_total_number_of_words(negative_reviews, negative_reviews_folder)
+number_of_positive_words = get_total_number_of_words(positive_train_reviews, positive_train_reviews_folder)
+number_of_negative_words = get_total_number_of_words(negative_train_reviews, negative_train_reviews_folder)
 
 # Retrieving the total number of positive and negative training reviews. (12 500 each)
 print("Calculating total number of test reviews ...")
-number_of_positive_reviews = (len(positive_reviews))
-number_of_negative_reviews = (len(negative_reviews))
+number_of_positive_reviews = (len(positive_train_reviews))
+number_of_negative_reviews = (len(negative_train_reviews))
 
 # Probability of an arbitrary review being positive or negative. Will be 0.5 for both
 print("Calculating the probability of a review being positive or negative ...")
@@ -145,6 +149,21 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # When making fast, simple testing.
+def remove_uncommon_words(text):
+    without_stopwords = remove_stopwords(text)
+    filtered_words = []
+    words = re.split("\s+", without_stopwords)
+    for word in words:
+        occurrence_in_positive_reviews = count_text(every_positive_word).get(word)
+        occurrence_in_negative_reviews = count_text(every_negative_word).get(word)
+        if occurrence_in_positive_reviews is not None and occurrence_in_negative_reviews is not None:
+            if occurrence_in_positive_reviews > 100 or occurrence_in_negative_reviews > 100:
+                filtered_words.append(word)
+    return ' '.join(filtered_words)
+
+print(remove_uncommon_words(test_negative_review))
+
+
 fake_review = "worst crap"
 
 
@@ -186,8 +205,6 @@ def calc_err_pos():
     return res
 
 
-# TESTS Uncomment to run. Output will explain what is being testet.
-# The very last test is the core functionality.
 """
 # Prints the actual text of a review after filtering stopwords
 print("Review text after filtering: " + remove_stopwords(test_review))
@@ -211,40 +228,40 @@ print(count_text(remove_stopwords(test_review)))
 # Total amount of words in positive training reviews
 print("\nTotal amount of words in positive training reviews:")
 total_number_of_words = 0
-for review in positive_reviews:
-    review_text = get_text(positive_reviews_folder + review)
+for review in positive_train_reviews:
+    review_text = get_text(positive_train_reviews_folder + review)
     total_number_of_words += sum(count_text(review_text).values())
 print(total_number_of_words)
 
 # Total amount of words in positive reviews after filtering
 print("\nTotal amount of words in positive training reviews after filtering:")
 total_number_of_words = 0
-for review in positive_reviews:
-    review_text = positive_reviews_folder + review
+for review in positive_train_reviews:
+    review_text = positive_train_reviews_folder + review
     total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
 print(total_number_of_words)
 
 # Total amount of words in negative training reviews
 print("\nTotal amount of words in negative training reviews:")
 total_number_of_words = 0
-for review in negative_reviews:
-    review_text = get_text(negative_reviews_folder + review)
+for review in negative_train_reviews:
+    review_text = get_text(negative_train_reviews_folder + review)
     total_number_of_words += sum(count_text(review_text).values())
 print(total_number_of_words)
 
 # Total amount of words in negative reviews after filtering
 print("\nTotal amount of words in negative training reviews after filtering:")
 total_number_of_words = 0
-for review in negative_reviews:
-    review_text = negative_reviews_folder + review
+for review in negative_train_reviews:
+    review_text = negative_train_reviews_folder + review
     total_number_of_words += sum(count_text(remove_stopwords(review_text)).values())
 print(total_number_of_words)
 
 # Get all text in negative reviews
 print("\nEvery word in negative training reviews after filtering:")
 all_text = []
-for review in negative_reviews:
-    review_text = negative_reviews_folder + review
+for review in negative_train_reviews:
+    review_text = negative_train_reviews_folder + review
     all_text.append(remove_stopwords(review_text))
 actual_text = array_to_string(all_text)
 print(actual_text)
@@ -264,8 +281,3 @@ print("Negative text sample: {0}".format(every_negative_word[:100]))
 # test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
 print("Filtering words in review (if using a filtering method) ...")
 print(get_prediction(remove_stopwords(test_positive_review)))
-
-
-
-
-
