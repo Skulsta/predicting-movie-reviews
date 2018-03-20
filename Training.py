@@ -159,7 +159,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
 def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(50)
+    most_common_words = count_text(every_word).most_common(40)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
@@ -179,7 +179,6 @@ def get_every_word_in_a_folder(folder, folder_path):
     return actual_text
 
 
-
 def filter_words(text):
     result = []
     words = re.split("\s+", get_text(text))
@@ -191,9 +190,6 @@ def filter_words(text):
 
 most_common_positive_words = remove_uncommon_words(every_positive_word)
 most_common_negative_words = remove_uncommon_words(every_negative_word)
-print(most_common_positive_words)
-print(most_common_negative_words)
-
 
 fake_review = "worst crap"
 
@@ -228,7 +224,7 @@ def get_prediction(text):
 
 def predict_reviews(folder, folder_path):
     all_predictions = []
-    for review in folder:
+    for review in folder:   # Add "[:n] after folder to print only the n first reviews.
         review_text = folder_path + review
         prediction = get_prediction(filter_words(review_text))
         all_predictions.append(prediction)
@@ -236,8 +232,7 @@ def predict_reviews(folder, folder_path):
     return all_predictions
 
 
-predict_reviews(negative_test_reviews, negative_test_reviews_folder)
-
+# TESTS - Uncomment to run tests. Every test will give output explaining what is being tested.
 """
 # Prints the actual text of a review after filtering stopwords
 print("Review text after filtering: " + remove_stopwords(test_review))
@@ -303,14 +298,16 @@ print("Most common positive words: ")
 print(count_text(every_positive_word).most_common(5))
 print("Most common negative words: ")
 print(count_text(every_negative_word).most_common(5))
-
-print("Positive text sample: {0}".format(every_positive_word[:100]))
-print("Negative text sample: {0}".format(every_negative_word[:100]))
-
-# Predict whether a review is positive or negative.
-# Use either get_text, remove_stopwords or remove_uncommon_words on the input review.
-# New changes has made remove_uncommon obsolete.
-# test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
 """
+
+
+# Main functions
+"""###############
+# Iterate through every positive review in the training set.
+predict_reviews(positive_test_reviews, positive_test_reviews_folder)
+
+# Iterate through every negative review in the training set.
+predict_reviews(negative_test_reviews, negative_test_reviews_folder)
 # print("Filtering words in review (if using a filtering method) ...")
 # print(get_prediction(filter_words(test_negative_review)))
+##############"""
