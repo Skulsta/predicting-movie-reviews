@@ -18,6 +18,11 @@ negative_train_reviews_folder = "aclImdb/train/neg/"
 positive_train_reviews = os.listdir(positive_train_reviews_folder)
 negative_train_reviews = os.listdir(negative_train_reviews_folder)
 
+positive_test_reviews_folder = "aclImdb/test/pos/"
+negative_test_reviews_folder = "aclImdb/test/neg/"
+positive_test_reviews = os.listdir(positive_test_reviews_folder)
+negative_test_reviews = os.listdir(negative_test_reviews_folder)
+
 test_review = "aclImdb/test/pos/0_10.txt"
 test_negative_review = "aclImdb/test/neg/0_2.txt"
 test_positive_review = "aclImdb/test/pos/4_10.txt"
@@ -154,7 +159,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
 def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(200)
+    most_common_words = count_text(every_word).most_common(20)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
@@ -186,6 +191,9 @@ def filter_words(text):
 
 most_common_positive_words = remove_uncommon_words(every_positive_word)
 most_common_negative_words = remove_uncommon_words(every_negative_word)
+print(most_common_positive_words)
+print(most_common_negative_words)
+
 
 fake_review = "worst crap"
 
@@ -228,7 +236,7 @@ def predict_reviews(folder, folder_path):
     return all_predictions
 
 
-# predict_reviews(positive_train_reviews, positive_train_reviews_folder)
+predict_reviews(negative_test_reviews, negative_test_reviews_folder)
 
 """
 # Prints the actual text of a review after filtering stopwords
