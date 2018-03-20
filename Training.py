@@ -95,7 +95,7 @@ def remove_stopwords(text):
     filtered_words = []
     words = re.split("\s+", get_text(text))
     for word in words:
-        if word in vocabulary and word not in stopwords:
+        if word not in stopwords:
             filtered_words.append(word)
     return ' '.join(filtered_words)
 
@@ -126,7 +126,7 @@ def get_every_word_in_a_folder(folder, folder_path):
     all_text = []
     for review in folder:
         review_text = folder_path + review
-        all_text.append(get_text(review_text))
+        all_text.append(remove_stopwords(review_text))
     actual_text = array_to_string(all_text)
     return actual_text
 
@@ -152,18 +152,29 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # When making fast, simple testing.
-def remove_uncommon_words(text):
-    without_stopwords = remove_stopwords(text)
+def remove_uncommon_words():
     filtered_words = []
-    words = re.split("\s+", without_stopwords)
-    for word in words:
-        occurrence_in_positive_reviews = count_text(every_positive_word).get(word)
-        occurrence_in_negative_reviews = count_text(every_negative_word).get(word)
-        if occurrence_in_positive_reviews is not None and occurrence_in_negative_reviews is not None:
-            if occurrence_in_positive_reviews > 100 or occurrence_in_negative_reviews > 100:
-                filtered_words.append(word)
-    return ' '.join(filtered_words)
+    most_common_positives = count_text(every_positive_word).most_common(100)
+    for word in most_common_positives:
+        if word[0] in vocabulary:
+            filtered_words.append(word[0])
+    # for word in count_text(every_negative_word).most_common(100).key():
+    #     if filtered_words.__contains__(word):
+    #         filtered_words.append(word)
+    return filtered_words #' '.join(filtered_words)
 
+
+def filter_words(text):
+    result = []
+    words = re.split("\s+", get_text(text))
+    for word in words:
+        if word in most_common_positive_words:
+            result.append(word)
+    return ' '.join(result)
+
+
+
+most_common_positive_words = remove_uncommon_words()
 
 fake_review = "worst crap"
 
@@ -178,13 +189,12 @@ def get_prediction(text):
         # print(count_text(every_positive_word).get(word))
         # print(count_text(every_negative_word).get(word))
         word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
-        if word_occurrences_in_positive_reviews is not None and word_occurrences_in_positive_reviews > 500:
-            word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
-            print(word)
-            positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
-            product_of_positive *= positive_word_weight
-            negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
-            product_of_negative *= negative_word_weight
+        word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
+        print(word)
+        positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
+        product_of_positive *= positive_word_weight
+        negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
+        product_of_negative *= negative_word_weight
         # print("Was checked in both")
     # print("Product of weight of positive and negative")
     # print(product_of_positive)
@@ -279,5 +289,6 @@ print("Negative text sample: {0}".format(every_negative_word[:100]))
 # Use either get_text, remove_stopwords or remove_uncommon_words on the input review.
 # New changes has made remove_uncommon obsolete.
 # test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
-#print("Filtering words in review (if using a filtering method) ...")
-#print(get_prediction(remove_stopwords(test_positive_review)))
+
+# print("Filtering words in review (if using a filtering method) ...")
+print(get_prediction(filter_words(test_positive_review)))
