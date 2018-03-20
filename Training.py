@@ -149,10 +149,10 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # When making fast, simple testing.
-def remove_uncommon_words():
+def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_positives = count_text(every_positive_word).most_common(100)
-    for word in most_common_positives:
+    most_common_words = count_text(every_word).most_common(100)
+    for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
     # for word in count_text(every_negative_word).most_common(100).key():
@@ -161,17 +161,28 @@ def remove_uncommon_words():
     return filtered_words #' '.join(filtered_words)
 
 
+# Get all text accross every file in a folder after being filtered.
+def get_every_word_in_a_folder(folder, folder_path):
+    all_text = []
+    for review in folder:
+        review_text = folder_path + review
+        all_text.append(remove_stopwords(review_text))
+    actual_text = array_to_string(all_text)
+    return actual_text
+
+
+
 def filter_words(text):
     result = []
     words = re.split("\s+", get_text(text))
     for word in words:
-        if word in most_common_positive_words:
+        if word in most_common_positive_words or word in most_common_negative_words:
             result.append(word)
     return ' '.join(result)
 
 
-
-most_common_positive_words = remove_uncommon_words()
+most_common_positive_words = remove_uncommon_words(every_positive_word)
+most_common_negative_words = remove_uncommon_words(every_negative_word)
 
 fake_review = "worst crap"
 
@@ -201,16 +212,6 @@ def get_prediction(text):
     prediction = (product_of_positive * probability_of_positive_reviews) / \
                  (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
-
-
-def calc_err_pos():
-    pos = 0
-    res = 0
-    for output in get_prediction():
-        if output > 0.5:
-            pos += 1
-    res = res / number_of_positive_reviews
-    return res
 
 
 """
