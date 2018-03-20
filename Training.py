@@ -151,10 +151,10 @@ probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews
 probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
 
-# When making fast, simple testing.
+# When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
 def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(100)
+    most_common_words = count_text(every_word).most_common(200)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
@@ -195,6 +195,7 @@ def get_prediction(text):
     product_of_positive = 1
     product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
+    print("Words that are used: ")
     for word in text_counts:
         # print(text_counts.get(word))
         # print(count_text(every_positive_word).get(word))
@@ -216,6 +217,18 @@ def get_prediction(text):
                  (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
 
+
+def predict_reviews(folder, folder_path):
+    all_predictions = []
+    for review in folder:
+        review_text = folder_path + review
+        prediction = get_prediction(filter_words(review_text))
+        all_predictions.append(prediction)
+        print(prediction)
+    return all_predictions
+
+
+# predict_reviews(positive_train_reviews, positive_train_reviews_folder)
 
 """
 # Prints the actual text of a review after filtering stopwords
@@ -285,12 +298,11 @@ print(count_text(every_negative_word).most_common(5))
 
 print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
-"""
 
 # Predict whether a review is positive or negative.
 # Use either get_text, remove_stopwords or remove_uncommon_words on the input review.
 # New changes has made remove_uncommon obsolete.
 # test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
-
+"""
 # print("Filtering words in review (if using a filtering method) ...")
-print(get_prediction(filter_words(test_positive_review)))
+# print(get_prediction(filter_words(test_negative_review)))
