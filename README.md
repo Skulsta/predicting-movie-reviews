@@ -24,3 +24,4 @@ Missing:
 - Needs a lot of optimalization if it is to complete 25 000 test sets during the next decade.
 - Implement a method for calculating error rate
     - Tweaking the algorithm to make accurate predictions. Underfitting/Overfitting
+- Words ending with a punctuation is not included. Might miss important words because of this. E.g "The movie was amazing."

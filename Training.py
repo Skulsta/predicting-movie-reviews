@@ -160,12 +160,11 @@ def get_prediction(text):
         word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
         if word_occurrences_in_positive_reviews is not None and word_occurrences_in_positive_reviews > 500:
             word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
-            if word_occurrences_in_negative_reviews is not None and word_occurrences_in_negative_reviews > 500:
-                print(word)
-                positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
-                product_of_positive *= positive_word_weight
-                negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
-                product_of_negative *= negative_word_weight
+            print(word)
+            positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
+            product_of_positive *= positive_word_weight
+            negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
+            product_of_negative *= negative_word_weight
         # print("Was checked in both")
     # print("Product of weight of positive and negative")
     # print(product_of_positive)
