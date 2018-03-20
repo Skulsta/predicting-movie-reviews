@@ -135,14 +135,14 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 def remove_uncommon_words(text):
-    without_stopwords = remove_stopwords(text)
+    print("Filtering words in review")
     filtered_words = []
-    words = re.split("\s+", without_stopwords)
+    words = re.split("\s+", get_text(text))
     for word in words:
         occurrence_in_positive_reviews = count_text(every_positive_word).get(word)
         occurrence_in_negative_reviews = count_text(every_negative_word).get(word)
         if occurrence_in_positive_reviews is not None and occurrence_in_negative_reviews is not None:
-            if occurrence_in_positive_reviews > 100 or occurrence_in_negative_reviews > 100:
+            if occurrence_in_positive_reviews > 50 and occurrence_in_negative_reviews > 50:
                 filtered_words.append(word)
     return ' '.join(filtered_words)
 
@@ -150,8 +150,7 @@ def remove_uncommon_words(text):
 # Where we left of. Testing.
 fake_review = "worst crap"
 
-
-def get_word_weight(text):
+def get_prediction(text):
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
     product_of_negative = 1
@@ -174,99 +173,27 @@ def get_word_weight(text):
     print("Result: ")
     # Multinomial Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
-                 (
-                         product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
+                 (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
-    # positive_word_weight * probability_of_positive_reviews
-    # prediction_positive = positive_word_weight / (positive_word_weight + negative_word_weight)
-    # prediction_negative = negative_word_weight / (negative_word_weight + positive_word_weight)
-    # print("Probability positive: " + str(prediction_positive))
-    # print("Probability negative: " + str(prediction_negative))
-    # return (probability_of_positive_reviews * prediction_positive) - (probability_of_negative_reviews * prediction_negative)
 
 
 # print(get_word_weight(remove_stopwords(test_negative_review)))
-print(get_word_weight(remove_uncommon_words(test_positive_review)))
+print(get_prediction(remove_uncommon_words(test_negative_review)))
 
 
-def make_class_prediction(text):
-    prediction = 1
-    text_counts = Counter(re.split("\s", text))
-    for word in text_counts:
-        print(word)
-        print(text_counts.get(word))
-        print(count_text(every_positive_word).get(word))
-        print(count_text(every_negative_word).get(word))
-        # For every word in the text, we get the number of times that word occured in the reviews for a given class,
-        # add alpha to smooth the value, and divide by the total number of words in the class
-        # (plus the class_count to also smooth the denominator).
-        # Smoothing ensures that we don't multiply the prediction by 0 if the word didn't exist in the training data.
-        # We also smooth the denominator counts to keep things even.
-        # print(every_positive_word.get(word) + 1)
-        # prediction *= (positive_word_weight / (positive_word_weight + negative_word_weight))
-        # print(text_counts.get(word) * ((every_positive_word.get(word) + 1) / (sum(every_positive_word.values()))))
-    return prediction * probability_of_positive_reviews
+def calc_err_pos():
+    pos = 0
+    res = 0
+    for output in get_prediction():
+        if output > 0.5:
+            pos += 1
+    res = res / number_of_positive_reviews
+    return res
 
 
-# print(make_class_prediction(remove_stopwords(test_review)))
-
-
-# print("Review: {0}".format(remove_stopwords(test_negative_review)))
-# print("Positive prediction: {0}".format(make_class_prediction(remove_stopwords(test_negative_review), every_positive_word, probability_of_positive_reviews, number_of_positive_reviews)))
-# print("Negative prediction: {0}".format(make_class_prediction(remove_stopwords(test_negative_review), every_negative_word, probability_of_negative_reviews, number_of_negative_reviews)))
-
-
-def make_decision(text):
-    # Compute the negative and positive probabilities.
-    positive_prediction = make_class_prediction(text, every_positive_word, probability_of_positive_reviews,
-                                                number_of_positive_reviews)
-    negative_prediction = make_class_prediction(text, every_negative_word, probability_of_negative_reviews,
-                                                number_of_negative_reviews)
-    print(positive_prediction)
-    print(negative_prediction)
-
-    # We assign a classification based on which probability is greater.
-    if negative_prediction > positive_prediction:
-        return -1
-    return 1
-
-
-positive_test_reviews_folder = "aclImdb/test/pos/"
-negative_test_reviews_folder = "aclImdb/test/neg/"
-positive_test_reviews = os.listdir(positive_test_reviews_folder)
-negative_test_reviews = os.listdir(negative_test_reviews_folder)
-
-
-# print(make_decision(remove_stopwords(test_negative_review)))
-
-
-def get_predictions(folder_file, folder_path):
-    for review in folder_file[:1]:
-        review_file = folder_path + review
-
-        positive_prediction = make_class_prediction(remove_stopwords(review_file), every_positive_word,
-                                                    probability_of_positive_reviews, number_of_positive_reviews)
-        negative_prediction = make_class_prediction(remove_stopwords(review_file), every_negative_word,
-                                                    probability_of_negative_reviews, number_of_negative_reviews)
-        print(positive_prediction)
-        print(negative_prediction)
-
-        # We assign a classification based on which probability is greater.
-        if negative_prediction > positive_prediction:
-            print(-1)
-        else:
-            print(1)
-
-        prediction = get_word_weight(remove_stopwords(review_file))
-
-        return prediction
-
-
+# TESTS Uncomment to run. Output will explain what is being testet.
+# The very last test is the core functionality.
 """
-# TESTS - Uncomment for them deep insights.
-# Prints the actual text of a review.
-print("Review text before filtering: " + get_text(test_review))
-
 # Prints the actual text of a review after filtering stopwords
 print("Review text after filtering: " + remove_stopwords(test_review))
 
@@ -337,22 +264,4 @@ print("Negative text sample: {0}".format(every_negative_word[:100]))
 """
 
 
-def calc_err_pos():
-    pos = 0
-    res = 0
-    for output in get_predictions():
-        if output > 0.5:
-            pos += 1
-    res = res / number_of_positive_reviews
-    return res
-
-
-def calc_err_neg():
-    neg = 0
-    res = 0
-    for output in get_predictions():
-        if output < 0.5:
-            neg += 1
-    res = res / number_of_negative_reviews
-    return res
 
