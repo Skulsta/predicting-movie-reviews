@@ -161,8 +161,6 @@ def remove_uncommon_words(text):
                 filtered_words.append(word)
     return ' '.join(filtered_words)
 
-print(remove_uncommon_words(test_negative_review))
-
 
 fake_review = "worst crap"
 
