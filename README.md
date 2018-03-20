@@ -12,15 +12,15 @@ We now have access to:
 The main method is "get_prediction"
 -----------------------------------
 - It only accepts clean text as input, so before a review can be used, either:
-- - Run remove_uncommon_words. This is strict filtering where every word must pass given criterias:
-- - - The word must exist somewhere whithin at least on positive and one negative review. These have already filtered out stopwords.
-- - - The word must occurre at least 50 times (not fine tuned this variable) accross either all positive or negative reviews.
-- - Run remove_stopwords. Less strict filtering. Only removing stopwords from the review.
-- - Run get_text returns clean text without any filtering.
+    - Run remove_uncommon_words. This is strict filtering where every word must pass given criterias:
+        - The word must exist somewhere whithin at least on positive and one negative review. These have already filtered out stopwords.
+        - The word must occurre at least 50 times (not fine tuned this variable) accross either all positive or negative reviews.
+    - Run remove_stopwords. Less strict filtering. Removing stopwords from the review and removes words that does not exist in imdb.vocab
+    - Run get_text returns clean text without any filtering.
 - Goes through every word in the review (that is left if filtered) and uses Multinomial Naive Bayes to return a prediction.
-- - More than 0.5 means it's predicted to be a positive review. Less than 0.5 means the opposite.
+    - More than 0.5 means it's predicted to be a positive review. Less than 0.5 means the opposite.
 
 Missing:
 - Needs a lot of optimalization if it is to complete 25 000 test sets during the next decade.
 - Implement a method for calculating error rate
-- - Tweaking the algorithm to make accurate predictions. Underfitting/Overfitting
+    - Tweaking the algorithm to make accurate predictions. Underfitting/Overfitting

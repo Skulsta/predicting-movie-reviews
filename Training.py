@@ -65,12 +65,22 @@ def get_text(reviews):
     return " ".join([r.lower() for r in get_content(reviews)])
 
 
+def get_vocabulary():
+    print("Getting vocabulary from file ...")
+    with open("aclImdb/imdb.vocab", 'r', encoding="UTF-8", errors="ignore") as myfile:
+        stopwords = myfile.read().replace('\n', ' ')
+    return stopwords
+
+
 def get_stopwords():
     print("Getting stopwords from file ...")
     with open("aclImdb/stopwords.txt", 'r', encoding="UTF-8", errors="ignore") as myfile:
         stopwords = myfile.read().replace('\n', ' ')
     return stopwords
 
+
+
+vocabulary = get_vocabulary()
 
 stopwords = get_stopwords()
 
@@ -79,7 +89,7 @@ def remove_stopwords(text):
     filtered_words = []
     words = re.split("\s+", get_text(text))
     for word in words:
-        if word not in stopwords:
+        if word in vocabulary and word not in stopwords:
             filtered_words.append(word)
     return ' '.join(filtered_words)
 
@@ -109,12 +119,12 @@ def get_every_word_in_a_folder(folder, folder_path):
     all_text = []
     for review in folder:
         review_text = folder_path + review
-        all_text.append(remove_stopwords(review_text))
+        all_text.append(get_text(review_text))
     actual_text = array_to_string(all_text)
     return actual_text
 
 
-print("Filtering stopwords from every review in training set ...")
+print("Filtering stopwords from every review in training set (not filtering anymore) ...")
 every_positive_word = get_every_word_in_a_folder(positive_reviews, positive_reviews_folder)
 every_negative_word = get_every_word_in_a_folder(negative_reviews, negative_reviews_folder)
 
@@ -129,26 +139,14 @@ number_of_positive_reviews = (len(positive_reviews))
 number_of_negative_reviews = (len(negative_reviews))
 
 # Probability of an arbitrary review being positive or negative. Will be 0.5 for both
-print("Calculating the probability of an arbitrary review being positive or negative")
+print("Calculating the probability of a review being positive or negative ...")
 probability_of_positive_reviews = number_of_positive_reviews / number_of_reviews()
 probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews()
 
 
-def remove_uncommon_words(text):
-    print("Filtering words in review")
-    filtered_words = []
-    words = re.split("\s+", get_text(text))
-    for word in words:
-        occurrence_in_positive_reviews = count_text(every_positive_word).get(word)
-        occurrence_in_negative_reviews = count_text(every_negative_word).get(word)
-        if occurrence_in_positive_reviews is not None and occurrence_in_negative_reviews is not None:
-            if occurrence_in_positive_reviews > 50 and occurrence_in_negative_reviews > 50:
-                filtered_words.append(word)
-    return ' '.join(filtered_words)
-
-
-# Where we left of. Testing.
+# When making fast, simple testing.
 fake_review = "worst crap"
+
 
 def get_prediction(text):
     text_counts = Counter(re.split("\s", text))
@@ -156,29 +154,27 @@ def get_prediction(text):
     product_of_negative = 1
     print("Throwing Bayes magic around. This will take some time ...")
     for word in text_counts:
-        # print(word)
         # print(text_counts.get(word))
         # print(count_text(every_positive_word).get(word))
         # print(count_text(every_negative_word).get(word))
-        word_occurences_in_positive_review = count_text(every_positive_word).get(word)
-        word_occurences_in_negative_review = count_text(every_negative_word).get(word)
-        positive_word_weight = (word_occurences_in_positive_review / number_of_positive_words) ** text_counts.get(word)
-        product_of_positive *= positive_word_weight
-        negative_word_weight = (word_occurences_in_negative_review / number_of_negative_words) ** text_counts.get(word)
-        product_of_negative *= negative_word_weight
+        word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
+        if word_occurrences_in_positive_reviews is not None and word_occurrences_in_positive_reviews > 500:
+            word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
+            if word_occurrences_in_negative_reviews is not None and word_occurrences_in_negative_reviews > 500:
+                print(word)
+                positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
+                product_of_positive *= positive_word_weight
+                negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
+                product_of_negative *= negative_word_weight
         # print("Was checked in both")
     # print("Product of weight of positive and negative")
     # print(product_of_positive)
     # print(product_of_negative)
     print("Result: ")
-    # Multinomial Bayes going down here
+    # Multinomial Naive Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
                  (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
-
-
-# print(get_word_weight(remove_stopwords(test_negative_review)))
-print(get_prediction(remove_uncommon_words(test_negative_review)))
 
 
 def calc_err_pos():
@@ -262,6 +258,15 @@ print(count_text(every_negative_word).most_common(5))
 print("Positive text sample: {0}".format(every_positive_word[:100]))
 print("Negative text sample: {0}".format(every_negative_word[:100]))
 """
+
+# Predict whether a review is positive or negative.
+# Use either get_text, remove_stopwords or remove_uncommon_words on the input review.
+# New changes has made remove_uncommon obsolete.
+# test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
+print("Filtering words in review (if using a filtering method) ...")
+print(get_prediction(remove_stopwords(test_positive_review)))
+
+
 
 
 
