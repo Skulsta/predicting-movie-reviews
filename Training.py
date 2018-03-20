@@ -69,8 +69,9 @@ def get_text(reviews):
 def get_vocabulary():
     print("Getting vocabulary from file ...")
     with open("aclImdb/imdb.vocab", 'r', encoding="UTF-8", errors="ignore") as myfile:
-        stopwords = myfile.read().replace('\n', ' ')
-    return stopwords
+        vocabulary = myfile.read().replace('\n', ' ')
+
+    return vocabulary
 
 
 # Retrieve stopwords from a seperate text file containing a list of stopwords. These will later be filtered out to
@@ -82,6 +83,7 @@ def get_stopwords():
     return stopwords
 
 
+# Instantiate the vocabulary, so to avoid repeating the process for every word.
 vocabulary = get_vocabulary()
 
 # Instantiate the stopwords into a variable to be used later, so to avoid repeating the process more than necessary.
@@ -96,6 +98,7 @@ def remove_stopwords(text):
         if word not in stopwords:
             filtered_words.append(word)
     return ' '.join(filtered_words)
+
 
 # Split text and counts occurrences of each word in text.
 def count_text(text):
@@ -118,7 +121,7 @@ def get_total_number_of_words(folder, folder_path):
     return total_number_of_words
 
 
-# Get all text accross every file in a folder after being filtered.
+# Get all text across every file in a folder after being filtered.
 def get_every_word_in_a_folder(folder, folder_path):
     all_text = []
     for review in folder:
@@ -288,5 +291,6 @@ print("Negative text sample: {0}".format(every_negative_word[:100]))
 # Use either get_text, remove_stopwords or remove_uncommon_words on the input review.
 # New changes has made remove_uncommon obsolete.
 # test_positive_review takes 5:30 minutes when using get_text. 3:30 minutes when using remove_stopwords.
+
 # print("Filtering words in review (if using a filtering method) ...")
 print(get_prediction(filter_words(test_positive_review)))
