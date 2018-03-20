@@ -25,3 +25,5 @@ Missing:
 - Implement a method for calculating error rate
     - Tweaking the algorithm to make accurate predictions. Underfitting/Overfitting
 - Words ending with a punctuation is not included. Might miss important words because of this. E.g "The movie was amazing."
+- There's a microscopic chance that a review will not contain any words after filtering. This will result in an error. More likely
+the smaller "most.common" number is in the "filter_words" method.

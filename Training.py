@@ -159,7 +159,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
 def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(20)
+    most_common_words = count_text(every_word).most_common(50)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
