@@ -1,4 +1,3 @@
-import string
 from collections import Counter
 import os.path
 import re
@@ -10,7 +9,9 @@ import re
 # - number_of_positive_reviews is the number of positive reviews. 12 500.
 # - number_of_negative_reviews is the number of negative reviews. 12 500.
 
-# An array with every file in the training folders.
+# Increase will improve accuracy and increase time consumption
+# Time estimates: 50 = 3 min, 100 = 6 min and so on
+number_of_most_common_words = 50
 
 positive_train_reviews_folder = "aclImdb/train/pos/"
 negative_train_reviews_folder = "aclImdb/train/neg/"
@@ -43,10 +44,6 @@ def number_of_reviews():
     return all_reviews
 
 
-# All reviews can now be retrieved with this variable
-# all_reviews = read_training_data()
-
-
 # Split filename by underscore, then split the second half and retrieve the review score.
 def get_score(review):
     split_file = review.split("_")
@@ -70,7 +67,6 @@ def get_vocabulary():
     print("Getting vocabulary from file ...")
     with open("aclImdb/imdb.vocab", 'r', encoding="UTF-8", errors="ignore") as myfile:
         vocabulary = myfile.read().replace('\n', ' ')
-
     return vocabulary
 
 
@@ -83,7 +79,7 @@ def get_stopwords():
     return stopwords
 
 
-# Instantiate the vocabulary, so to avoid repeating the process for every word.
+# Instantiate the vocabulary, to avoid repeating the process for every word.
 vocabulary = get_vocabulary()
 
 # Instantiate the stopwords into a variable to be used later, so to avoid repeating the process more than necessary.
@@ -108,10 +104,6 @@ def count_text(text):
     return Counter(words)
 
 
-def array_to_string(array):
-    return ' '.join(array)
-
-
 # Total number of words across all files in a folder after being filtered.
 def get_total_number_of_words(folder, folder_path):
     total_number_of_words = 0
@@ -127,7 +119,7 @@ def get_every_word_in_a_folder(folder, folder_path):
     for review in folder:
         review_text = folder_path + review
         all_text.append(remove_stopwords(review_text))
-    actual_text = array_to_string(all_text)
+    actual_text = ' '.join(all_text)
     return actual_text
 
 
@@ -152,16 +144,13 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 
 
 # When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
-def remove_uncommon_words(every_word):
+def remove_uncommon_words(every_word, number_of_common_words):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(10)
+    most_common_words = count_text(every_word).most_common(number_of_common_words)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
-    # for word in count_text(every_negative_word).most_common(100).key():
-    #     if filtered_words.__contains__(word):
-    #         filtered_words.append(word)
-    return filtered_words #' '.join(filtered_words)
+    return filtered_words
 
 
 # Get all text accross every file in a folder after being filtered.
@@ -170,7 +159,7 @@ def get_every_word_in_a_folder(folder, folder_path):
     for review in folder:
         review_text = folder_path + review
         all_text.append(remove_stopwords(review_text))
-    actual_text = array_to_string(all_text)
+    actual_text = ' '.join(all_text)
     return actual_text
 
 
@@ -182,56 +171,51 @@ def filter_words(text):
             result.append(word)
     return ' '.join(result)
 
+print("Retrieving the most common positive words.")
+most_common_positive_words = remove_uncommon_words(every_positive_word, number_of_most_common_words)
+print("Retrieving the most common negative words.")
+most_common_negative_words = remove_uncommon_words(every_negative_word, number_of_most_common_words)
 
-most_common_positive_words = remove_uncommon_words(every_positive_word)
-most_common_negative_words = remove_uncommon_words(every_negative_word)
+
+def word_weights(words, every_word, number_of_words):
+    words_and_weights = dict()
+    for word in words:
+        word_weight = count_text(every_word).get(word) / number_of_words
+        words_and_weights[word] = word_weight
+    return words_and_weights
+
+print("Calculating word weights for positive words ... ")
+positive_word_weights = word_weights(most_common_positive_words, every_positive_word, number_of_positive_words)
+print("Calculating word weights for negative words ... ")
+negative_word_weights = word_weights(most_common_negative_words, every_negative_word, number_of_negative_words)
 
 
 def get_prediction(text):
-    smoothing = 100
+    if not text:
+        return 0.5
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
     product_of_negative = 1
-    # print("Throwing Bayes magic around. This will take some time ...")
-    print("Words that are used: ")
-    if len(text_counts) == 0:
-        return 0.5
     for word in text_counts:
-        # word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
-        # word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
-        if count_text(every_positive_word).get(word) is not None:
-            product_of_positive *= (count_text(every_positive_word).get(word) / number_of_positive_words) ** text_counts.get(word)
-        else:
-            product_of_positive *= (smoothing / number_of_positive_words)
-        if count_text(every_negative_word).get(word) is not None:
-            product_of_negative *= (count_text(every_negative_word).get(word) / number_of_negative_words) ** text_counts.get(word)
-        else:
-            product_of_negative *= (smoothing / number_of_negative_words)
-        print(word)
-        # print("Was checked in both")
-    # print("Product of weight of positive and negative")
-    # print(product_of_positive)
-    # print(product_of_negative)
-    # print("Result: ")
-    # Multinomial Naive Bayes going down here
+        product_of_positive *= positive_word_weights.get(word, 0) + 1 ** text_counts.get(word)
+        product_of_negative *= negative_word_weights.get(word, 0) + 1 ** text_counts.get(word)
     prediction = (product_of_positive * probability_of_positive_reviews) / \
                  (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
 
 
-def calculate_error(folder, folder_path, number_of_reviews_to_test):
-    print("Predicting movie rating on " + str(len(folder[:number_of_reviews_to_test])) + " reviews ...")
+def calculate_error(folder, folder_path):
     correct_prediction = 0
-    for review in folder[:number_of_reviews_to_test]:
+    for review in folder:
         actual_score = get_score(review)
         prediction = get_prediction(filter_words(folder_path + review))
         if (prediction > 0.5 and actual_score == 1) or (prediction < 0.5 and actual_score == -1):
             correct_prediction += 1
     print("------------")
-    print("Predicted correctly on: " + str(correct_prediction) + " of " + str(len(folder[:number_of_reviews_to_test]))
+    print("Predicted correctly on: " + str(correct_prediction) + " of " + str(len(folder))
           + " reviews")
     print("Error rate:")
-    return correct_prediction / len(folder[:number_of_reviews_to_test])
+    return correct_prediction / len(folder)
 
 
 # TESTS - Uncomment to run tests. Every test will give output explaining what is being tested.
@@ -305,8 +289,10 @@ print(count_text(every_negative_word).most_common(5))
 # Main functions
 ################
 # Iterate through as many numbers in positive training set as specified in 3rd argument.
-print(calculate_error(positive_test_reviews, positive_test_reviews_folder, 20))
+print("Calculating positive test reviews ...")
+print(calculate_error(positive_test_reviews, positive_test_reviews_folder))
 
+print("Calculating negative test reviews ...")
 # Iterate through as many numbers in negative training set as specified in 3rd argument.
-# print(calculate_error(negative_test_reviews, negative_test_reviews_folder, 20))
+print(calculate_error(negative_test_reviews, negative_test_reviews_folder))
 ################
