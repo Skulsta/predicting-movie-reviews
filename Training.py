@@ -5,9 +5,8 @@ import re
 
 # Tests at the bottom.
 # Important variables:
-# - test_review for testing stuff
-# - all_reviews is an array of every test files. 25 000 files. Uncomment if needed. It's at the top.
 # - stopword contains every word we have defined in our stopwords.txt file. Used to filter words from reviews.
+# - vocabulary contains every word defined in the imdb.vocab file. Used to filter words from reviews.
 # - number_of_positive_reviews is the number of positive reviews. 12 500.
 # - number_of_negative_reviews is the number of negative reviews. 12 500.
 
@@ -22,10 +21,6 @@ positive_test_reviews_folder = "aclImdb/test/pos/"
 negative_test_reviews_folder = "aclImdb/test/neg/"
 positive_test_reviews = os.listdir(positive_test_reviews_folder)
 negative_test_reviews = os.listdir(negative_test_reviews_folder)
-
-test_review = "aclImdb/test/pos/0_10.txt"
-test_negative_review = "aclImdb/test/neg/0_2.txt"
-test_positive_review = "aclImdb/test/pos/4_10.txt"
 
 
 # # get_text needs this to get direct access to the text
@@ -58,7 +53,7 @@ def get_score(review):
     score = int(split_file[1].split(".")[0])
     if score < 5:
         return -1
-    elif score > 6:
+    elif score > 5:
         return 1
     else:
         # Should throw exception instead. Figure out the Python way of doing that whenever.
@@ -159,7 +154,7 @@ probability_of_negative_reviews = number_of_negative_reviews / number_of_reviews
 # When making fast, simple testing. Increase most_common for more accuracy, decrease for more speed.
 def remove_uncommon_words(every_word):
     filtered_words = []
-    most_common_words = count_text(every_word).most_common(40)
+    most_common_words = count_text(every_word).most_common(10)
     for word in most_common_words:
         if word[0] in vocabulary:
             filtered_words.append(word[0])
@@ -191,45 +186,52 @@ def filter_words(text):
 most_common_positive_words = remove_uncommon_words(every_positive_word)
 most_common_negative_words = remove_uncommon_words(every_negative_word)
 
-fake_review = "worst crap"
-
 
 def get_prediction(text):
+    smoothing = 100
     text_counts = Counter(re.split("\s", text))
     product_of_positive = 1
     product_of_negative = 1
-    print("Throwing Bayes magic around. This will take some time ...")
+    # print("Throwing Bayes magic around. This will take some time ...")
     print("Words that are used: ")
+    if len(text_counts) == 0:
+        return 0.5
     for word in text_counts:
-        # print(text_counts.get(word))
-        # print(count_text(every_positive_word).get(word))
-        # print(count_text(every_negative_word).get(word))
-        word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
-        word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
+        # word_occurrences_in_positive_reviews = count_text(every_positive_word).get(word)
+        # word_occurrences_in_negative_reviews = count_text(every_negative_word).get(word)
+        if count_text(every_positive_word).get(word) is not None:
+            product_of_positive *= (count_text(every_positive_word).get(word) / number_of_positive_words) ** text_counts.get(word)
+        else:
+            product_of_positive *= (smoothing / number_of_positive_words)
+        if count_text(every_negative_word).get(word) is not None:
+            product_of_negative *= (count_text(every_negative_word).get(word) / number_of_negative_words) ** text_counts.get(word)
+        else:
+            product_of_negative *= (smoothing / number_of_negative_words)
         print(word)
-        positive_word_weight = (word_occurrences_in_positive_reviews / number_of_positive_words) ** text_counts.get(word)
-        product_of_positive *= positive_word_weight
-        negative_word_weight = (word_occurrences_in_negative_reviews / number_of_negative_words) ** text_counts.get(word)
-        product_of_negative *= negative_word_weight
         # print("Was checked in both")
     # print("Product of weight of positive and negative")
     # print(product_of_positive)
     # print(product_of_negative)
-    print("Result: ")
+    # print("Result: ")
     # Multinomial Naive Bayes going down here
     prediction = (product_of_positive * probability_of_positive_reviews) / \
                  (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
 
 
-def predict_reviews(folder, folder_path):
-    all_predictions = []
-    for review in folder:   # Add "[:n] after folder to print only the n first reviews.
-        review_text = folder_path + review
-        prediction = get_prediction(filter_words(review_text))
-        all_predictions.append(prediction)
-        print(prediction)
-    return all_predictions
+def calculate_error(folder, folder_path, number_of_reviews_to_test):
+    print("Predicting movie rating on " + str(len(folder[:number_of_reviews_to_test])) + " reviews ...")
+    correct_prediction = 0
+    for review in folder[:number_of_reviews_to_test]:
+        actual_score = get_score(review)
+        prediction = get_prediction(filter_words(folder_path + review))
+        if (prediction > 0.5 and actual_score == 1) or (prediction < 0.5 and actual_score == -1):
+            correct_prediction += 1
+    print("------------")
+    print("Predicted correctly on: " + str(correct_prediction) + " of " + str(len(folder[:number_of_reviews_to_test]))
+          + " reviews")
+    print("Error rate:")
+    return correct_prediction / len(folder[:number_of_reviews_to_test])
 
 
 # TESTS - Uncomment to run tests. Every test will give output explaining what is being tested.
@@ -300,14 +302,11 @@ print("Most common negative words: ")
 print(count_text(every_negative_word).most_common(5))
 """
 
-
 # Main functions
-"""###############
-# Iterate through every positive review in the training set.
-predict_reviews(positive_test_reviews, positive_test_reviews_folder)
+################
+# Iterate through as many numbers in positive training set as specified in 3rd argument.
+print(calculate_error(positive_test_reviews, positive_test_reviews_folder, 20))
 
-# Iterate through every negative review in the training set.
-predict_reviews(negative_test_reviews, negative_test_reviews_folder)
-# print("Filtering words in review (if using a filtering method) ...")
-# print(get_prediction(filter_words(test_negative_review)))
-##############"""
+# Iterate through as many numbers in negative training set as specified in 3rd argument.
+# print(calculate_error(negative_test_reviews, negative_test_reviews_folder, 20))
+################
