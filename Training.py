@@ -11,7 +11,7 @@ import re
 
 # Increase will improve accuracy and increase time consumption
 # Time estimates: 50 = 3 min, 100 = 6 min and so on
-number_of_most_common_words = 50
+number_of_most_common_words = 100
 
 positive_train_reviews_folder = "aclImdb/train/pos/"
 negative_train_reviews_folder = "aclImdb/train/neg/"
