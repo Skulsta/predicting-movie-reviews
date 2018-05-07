@@ -21,4 +21,9 @@ def prepare_data(directory):
 
 prepare_data('aclImdb')
 
+clean = []
+
+# for x in data[:10]:
+    # x = re.sub(r'[^\w\s]', '', x)
+
 print(data[3])
