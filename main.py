@@ -16,12 +16,11 @@ def prepare_data(directory):
     return data
 
 
-
 def make_counter(words):
     counter = Counter()
     for word in words:
         counter.update(word)
-    print(counter.most_common(3)) #Remember to remove this.
+    print(counter.most_common(3)) # Remember to remove this.
     return counter
 
 

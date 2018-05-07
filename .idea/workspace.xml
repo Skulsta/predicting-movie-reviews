@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e159e21f-f730-4226-aea0-bda17d6dec60" name="Default" comment="" />
+    <list default="true" id="e159e21f-f730-4226-aea0-bda17d6dec60" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,8 +21,8 @@
       <file leaf-file-name="Training.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Training.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1340">
-              <caret line="172" selection-start-line="172" selection-end-line="172" />
+            <state relative-caret-position="-384">
+              <caret line="90" column="21" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -31,8 +33,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+            <state relative-caret-position="150">
+              <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
               </folding>
@@ -140,9 +142,9 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-78" />
-    <option name="y" value="665" />
+  <component name="ProjectFrameBounds" extendedState="1">
+    <option name="x" value="69" />
+    <option name="y" value="67" />
     <option name="width" value="1347" />
     <option name="height" value="852" />
   </component>
@@ -258,7 +260,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-78" y="665" width="1347" height="852" extended-state="0" />
+    <frame x="69" y="67" width="1347" height="852" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
@@ -648,8 +651,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+        <state relative-caret-position="150">
+          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
           </folding>
@@ -658,8 +661,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Training.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1340">
-          <caret line="172" selection-start-line="172" selection-end-line="172" />
+        <state relative-caret-position="-384">
+          <caret line="90" column="21" selection-start-line="90" selection-start-column="21" selection-end-line="90" selection-end-column="21" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>

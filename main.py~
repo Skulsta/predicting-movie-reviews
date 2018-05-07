@@ -3,10 +3,9 @@ from collections import Counter
 import re
 
 stop_words = Path('aclImdb/stopwords.txt').read_text()
-print(stop_words)
-data = []
 
 def prepare_data(directory):
+    data = []
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
@@ -17,12 +16,11 @@ def prepare_data(directory):
     return data
 
 
-
 def make_counter(words):
     counter = Counter()
     for word in words:
         counter.update(word)
-    print(counter.most_common(3)) #Remember to remove this.
+    print(counter.most_common(3)) # Remember to remove this.
     return counter
 
 
