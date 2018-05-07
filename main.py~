@@ -1,5 +1,6 @@
 from pathlib import Path
 from collections import Counter
+from itertools import dropwhile
 import re
 
 stop_words = Path('aclImdb/stopwords.txt').read_text()
@@ -16,20 +17,27 @@ def prepare_data(directory):
     return data
 
 
+def remove_uncommon_words(counter):
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 15,
+            counter.most_common()):
+        del counter[key]
+
+
 def make_counter(words):
     counter = Counter()
     for word in words:
         counter.update(word)
+    remove_uncommon_words(counter)
     print(counter.most_common(3)) # Remember to remove this.
     return counter
 
 
 # Data sets split into Counters
 test_neg = make_counter(prepare_data('aclImdb/test/neg'))
-test_pos = make_counter(prepare_data('aclImdb/test/pos'))
-train_neg = make_counter(prepare_data('aclImdb/train/neg'))
-train_pos = make_counter(prepare_data('aclImdb/train/pos'))
-all_data = train_neg + train_pos + test_neg + test_pos
-print(all_data.most_common(5))
+# test_pos = make_counter(prepare_data('aclImdb/test/pos'))
+# train_neg = make_counter(prepare_data('aclImdb/train/neg'))
+# train_pos = make_counter(prepare_data('aclImdb/train/pos'))
+# all_data = train_neg + train_pos + test_neg + test_pos
+# print(all_data.most_common(5))
 
-
+print(sum(test_neg.values()))
