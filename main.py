@@ -11,7 +11,7 @@ def prepare_data(directory):
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
         if x.is_file() and re.search('^\d+?_[1-9]\.txt$', x.name):
-            data.append(Path(x.open('r', encoding='UTF-8', errors='ignore').read()))
+            data.append(Path(x).read_text(errors='ignore'))
         elif x.is_dir():
             data.extend(prepare_data(x))
     return data
@@ -21,5 +21,6 @@ def prepare_data(directory):
 
 prepare_data('aclImdb')
 
-print(data[0])
+print(data[3])
+
 
