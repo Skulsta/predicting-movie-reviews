@@ -1,10 +1,8 @@
 from pathlib import Path
-import string
+from collections import Counter
 import re
 
-
 data = []
-
 
 def prepare_data(directory):
     dirpath = Path(directory)

@@ -1,10 +1,8 @@
 from pathlib import Path
-import string
+from collections import Counter
 import re
 
-
 data = []
-
 
 def prepare_data(directory):
     dirpath = Path(directory)
@@ -20,10 +18,5 @@ def prepare_data(directory):
 # pprint(prepare_data('aclImdb'))
 
 prepare_data('aclImdb')
-
-clean = []
-
-# for x in data[:10]:
-    # x = re.sub(r'[^\w\s]', '', x)
 
 print(data[3])
