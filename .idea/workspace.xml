@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e159e21f-f730-4226-aea0-bda17d6dec60" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.main.py.swo" beforeDir="false" afterPath="$PROJECT_DIR$/.main.py.swo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -35,8 +34,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
+            <state relative-caret-position="330">
+              <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
               </folding>
@@ -145,7 +144,7 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="160" />
+    <option name="x" value="11" />
     <option name="y" value="193" />
     <option name="width" value="1347" />
     <option name="height" value="852" />
@@ -162,6 +161,17 @@
             <path>
               <item name="vap003_mve014_aid003_first_assignment" type="b2602c69:ProjectViewProjectNode" />
               <item name="vap003_mve014_aid003_first_assignment" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="vap003_mve014_aid003_first_assignment" type="b2602c69:ProjectViewProjectNode" />
+              <item name="vap003_mve014_aid003_first_assignment" type="462c0819:PsiDirectoryNode" />
+              <item name="aclImdb" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="vap003_mve014_aid003_first_assignment" type="b2602c69:ProjectViewProjectNode" />
+              <item name="vap003_mve014_aid003_first_assignment" type="462c0819:PsiDirectoryNode" />
+              <item name="aclImdb" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -251,17 +261,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="212" y="582" width="1347" height="852" extended-state="0" />
-    <editor active="true" />
+    <frame x="11" y="193" width="1347" height="852" extended-state="0" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="0" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="3" visible="true" weight="0.37086093" />
+      <window_info anchor="bottom" id="Run" order="3" visible="true" weight="0.37086093" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32950193" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16858238" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16858238" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="4" />
       <window_info anchor="right" id="SciView" order="3" />
@@ -642,8 +651,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
+        <state relative-caret-position="330">
+          <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
           </folding>

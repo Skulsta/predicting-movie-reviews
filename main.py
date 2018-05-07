@@ -17,18 +17,25 @@ def prepare_data(directory):
 # Prints every file like this: PosixPath('aclImdb/train/pos/4290_9.txt')
 # pprint(prepare_data('aclImdb'))
 
-prepare_data('aclImdb')
+test_neg = prepare_data('aclImdb/test/neg')
+test_pos = prepare_data('aclImdb/test/pos')
+train_neg = prepare_data('aclImdb/train/neg')
+train_pos = prepare_data('aclImdb/train/pos')
 
-print(data[:2])
+# print(test_neg[1])
+# print(test_pos[1])
+# print(train_neg[1])
+# print(train_pos[1])
 
-counter = Counter()
 # If we need a Counter
-def make_counter():
-    for word in data:
+def make_counter(words):
+    counter = Counter()
+    for word in words:
         counter.update(word)
     print(counter.most_common(3)) #Remember to remove this.
+    return counter
 
 
-# make_counter()
+# make_counter(test_neg)
 
 
