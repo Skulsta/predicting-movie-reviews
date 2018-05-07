@@ -9,7 +9,7 @@ def prepare_data(directory):
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
         if x.is_file() and re.search('^\d+?_[1-9]\.txt$', x.name):
-            data.append(re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower())
+            data.append(re.split('\s+', re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
     return data
@@ -19,4 +19,14 @@ def prepare_data(directory):
 
 prepare_data('aclImdb')
 
-print(data[3])
+counter = Counter()
+# If we need a Counter
+def make_counter():
+    for word in data:
+        counter.update(word)
+    print(counter.most_common(3)) #Remember to remove this.
+
+
+# make_counter()
+
+
