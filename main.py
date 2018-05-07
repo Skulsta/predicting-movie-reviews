@@ -8,7 +8,7 @@ def prepare_data(directory):
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
-        if x.is_file() and re.search('^\d+?_[1-9]\.txt$', x.name):
+        if x.is_file() and re.search('^\d+?_([1-9]|10)\.txt$', x.name):
             data.append(re.split('\s+', re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
@@ -18,6 +18,8 @@ def prepare_data(directory):
 # pprint(prepare_data('aclImdb'))
 
 prepare_data('aclImdb')
+
+print(data[:2])
 
 counter = Counter()
 # If we need a Counter

@@ -8,7 +8,7 @@ def prepare_data(directory):
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
-        if x.is_file() and re.search('^\d+?_[1-9]\.txt$', x.name):
+        if x.is_file() and re.search('^\d+?_([1-9]|10)\.txt$', x.name):
             data.append(re.split('\s+', re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
@@ -24,9 +24,9 @@ counter = Counter()
 def make_counter():
     for word in data:
         counter.update(word)
+    print(counter.most_common(3)) #Remember to remove this.
 
 
-make_counter()
+# make_counter()
 
-print(counter.most_common(3))
 
