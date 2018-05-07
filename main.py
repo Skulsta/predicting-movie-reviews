@@ -2,9 +2,10 @@ from pathlib import Path
 from collections import Counter
 import re
 
-data = []
+stop_words = Path('aclImdb/stopwords.txt').read_text()
 
 def prepare_data(directory):
+    data = []
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
@@ -15,12 +16,7 @@ def prepare_data(directory):
     return data
 
 
-# print(test_neg[1])
-# print(test_pos[1])
-# print(train_neg[1])
-# print(train_pos[1])
 
-# If we need Counters
 def make_counter(words):
     counter = Counter()
     for word in words:
@@ -29,12 +25,12 @@ def make_counter(words):
     return counter
 
 
-# Data sets split into lists
+# Data sets split into Counters
 test_neg = make_counter(prepare_data('aclImdb/test/neg'))
 test_pos = make_counter(prepare_data('aclImdb/test/pos'))
 train_neg = make_counter(prepare_data('aclImdb/train/neg'))
 train_pos = make_counter(prepare_data('aclImdb/train/pos'))
-
 all_data = train_neg + train_pos + test_neg + test_pos
 print(all_data.most_common(5))
+
 
