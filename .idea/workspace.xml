@@ -260,17 +260,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="69" y="67" width="1347" height="852" extended-state="0" />
-    <editor active="true" />
+    <frame x="69" y="67" width="1347" height="852" extended-state="1" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="0" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="3" visible="true" weight="0.37086093" />
+      <window_info anchor="bottom" id="Run" order="3" weight="0.37086093" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32950193" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16858238" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16858238" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="4" />
       <window_info anchor="right" id="SciView" order="3" />

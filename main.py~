@@ -5,6 +5,9 @@ import re
 
 stop_words = Path('aclImdb/stopwords.txt').read_text()
 
+probability_of_positive_reviews = 0.5
+probability_of_negative_reviews = 0.5
+
 def prepare_data(directory):
     data = []
     dirpath = Path(directory)
@@ -18,7 +21,7 @@ def prepare_data(directory):
 
 
 def remove_uncommon_words(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 15,
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 10,
             counter.most_common()):
         del counter[key]
 
@@ -33,11 +36,64 @@ def make_counter(words):
 
 
 # Data sets split into Counters
-test_neg = make_counter(prepare_data('aclImdb/test/neg'))
+# test_neg = make_counter(prepare_data('aclImdb/test/neg'))
 # test_pos = make_counter(prepare_data('aclImdb/test/pos'))
-# train_neg = make_counter(prepare_data('aclImdb/train/neg'))
-# train_pos = make_counter(prepare_data('aclImdb/train/pos'))
-# all_data = train_neg + train_pos + test_neg + test_pos
+train_neg = make_counter(prepare_data('aclImdb/train/neg'))
+train_pos = make_counter(prepare_data('aclImdb/train/pos'))
+all_train_data = train_neg + train_pos
 # print(all_data.most_common(5))
 
-print(sum(test_neg.values()))
+total_numb_of_words = sum(all_train_data.values())
+neg_num_of_words = sum(train_neg.values())
+pos_num_of_words = sum(train_pos.values())
+# words_and_weights = dict()
+
+def list_to_counter(review):
+    if isinstance(review, list):
+        text = ' '.join(review)
+        words = re.split('\s+', text)
+    return Counter(words)
+
+
+pos_word_weights = dict()
+neg_word_weights = dict()
+
+def make_word_weights():
+    for word in all_train_data.keys():
+        if word in train_pos.keys():
+            pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) + 1
+        if word in train_neg.keys():
+            neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) + 1
+
+
+make_word_weights()
+
+print("{0:.2f}".format(pos_word_weights.get('terrible')))
+print("{0:.2f}".format(neg_word_weights.get('terrible')))
+
+def get_prediction(review):
+    input_counter = list_to_counter(review)
+    product_of_pos = 1
+    product_of_neg = 1
+    for word in input_counter.keys():
+        product_of_pos *= (pos_word_weights.get(word, 0) + 1 **
+                input_counter.get(word))
+        product_of_neg *= (neg_word_weights.get(word, 0) + 1 **
+                input_counter.get(word))
+    prediction = ((product_of_pos * probability_of_positive_reviews)/(product_of_pos * probability_of_positive_reviews + product_of_neg * probability_of_negative_reviews))
+    return prediction
+
+
+print(get_prediction(prepare_data('aclImdb/test/neg')[5]))
+print(get_prediction(prepare_data('aclImdb/test/pos')[5]))
+
+def run_test_set(path):
+    for review in prepare_data(path)[:10]:
+        print(get_prediction(review))
+
+print("Negative reviews: ")
+run_test_set('aclImdb/test/neg')
+
+print("Positive reviews: ")
+run_test_set('aclImdb/test/pos')
+
