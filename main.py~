@@ -98,32 +98,34 @@ def run_test_set(path):
 # print("\nPositive reviews: ")
 # run_test_set('aclImdb/test/pos')
 
-def calculate_error(folder):
+def calculate_error():
+    neg_test_reviews = 'aclImdb/test/neg'
+    pos_test_reviews = 'aclImdb/test/pos'
     correct_prediction = 0
+    correct_neg_prediction = 0
+    correct_pos_prediction = 0
 
-    if 'neg' in folder:
-        for review in prepare_data(folder):
-            if (get_prediction(review) < 0.5):
-                correct_prediction += 1
+    for review in prepare_data(neg_test_reviews):
+        if (get_prediction(review) < 0.5):
+            correct_prediction += 1
+            correct_neg_prediction += 1
 
-    elif 'pos' in folder:
-        for review in prepare_data(folder):
-            if (get_prediction(review) < 0.5):
-                correct_prediction += 1
-
-    else:
-        return 'Not a valid folder'
+    for review in prepare_data(pos_test_reviews):
+        if (get_prediction(review) < 0.5):
+             correct_prediction += 1
+             correct_pos_prediction += 1
 
     print("------------")
     print("Predicted correctly on: " + str(correct_prediction) + " of " +
-            str(len(prepare_data(folder))) + " reviews")
-    print("Error rate:")
-    return correct_prediction / len(prepare_data(folder))
+            str(len(prepare_data(neg_test_reviews))) + " negative reviews")
+    print("Error rate for negative reviews: " + str(correct_neg_prediction /
+        len(prepare_data(neg_test_reviews))))
+    print("Error rate for positive reviews: " + str(correct_pos_prediction /
+        len(prepare_data(pos_test_reviews))))
+    return correct_prediction / (len(prepare_data(neg_test_reviews)) +
+            len(prepare_data(pos_test_reviews)))
 
 
-print("Calculating negative test reviews ...")
-print(calculate_error('aclImdb/test/neg'))
-
-print("Calculating positive test reviews ...")
-print(calculate_error('aclImdb/test/pos'))
+print("Calculating test reviews ...")
+print(calculate_error())
 
