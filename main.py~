@@ -31,7 +31,6 @@ def make_counter(words):
     for word in words:
         counter.update(word)
     remove_uncommon_words(counter)
-    print(counter.most_common(3)) # Remember to remove this.
     return counter
 
 
@@ -59,19 +58,19 @@ pos_word_weights = dict()
 neg_word_weights = dict()
 
 def make_word_weights():
+    gamma = 100
     for word in all_train_data.keys():
         if word in train_pos.keys():
-            pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) + 1
+            pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
         if word in train_neg.keys():
-            neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) + 1
+            neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
 
 
 make_word_weights()
 
-print("{0:.2f}".format(pos_word_weights.get('terrible')))
-print("{0:.2f}".format(neg_word_weights.get('terrible')))
-
 def get_prediction(review):
+    if not review:
+        return 0.5
     input_counter = list_to_counter(review)
     product_of_pos = 1
     product_of_neg = 1
@@ -80,20 +79,51 @@ def get_prediction(review):
                 input_counter.get(word))
         product_of_neg *= (neg_word_weights.get(word, 0) + 1 **
                 input_counter.get(word))
-    prediction = ((product_of_pos * probability_of_positive_reviews)/(product_of_pos * probability_of_positive_reviews + product_of_neg * probability_of_negative_reviews))
+    prediction = ((product_of_pos * probability_of_positive_reviews) /
+            ((product_of_pos * probability_of_positive_reviews) +
+                (product_of_neg * probability_of_negative_reviews)))
     return prediction
 
 
-print(get_prediction(prepare_data('aclImdb/test/neg')[5]))
-print(get_prediction(prepare_data('aclImdb/test/pos')[5]))
+print(get_prediction(prepare_data('aclImdb/test/neg')[11]))
+print(get_prediction(prepare_data('aclImdb/test/pos')[11]))
 
 def run_test_set(path):
     for review in prepare_data(path)[:10]:
         print(get_prediction(review))
 
-print("Negative reviews: ")
-run_test_set('aclImdb/test/neg')
+# print("Negative reviews: ")
+# run_test_set('aclImdb/test/neg')
 
-print("Positive reviews: ")
-run_test_set('aclImdb/test/pos')
+# print("\nPositive reviews: ")
+# run_test_set('aclImdb/test/pos')
+
+def calculate_error(folder):
+    correct_prediction = 0
+
+    if 'neg' in folder:
+        for review in prepare_data(folder):
+            if (get_prediction(review) < 0.5):
+                correct_prediction += 1
+
+    elif 'pos' in folder:
+        for review in prepare_data(folder):
+            if (get_prediction(review) < 0.5):
+                correct_prediction += 1
+
+    else:
+        return 'Not a valid folder'
+
+    print("------------")
+    print("Predicted correctly on: " + str(correct_prediction) + " of " +
+            str(len(prepare_data(folder))) + " reviews")
+    print("Error rate:")
+    return correct_prediction / len(prepare_data(folder))
+
+
+print("Calculating negative test reviews ...")
+print(calculate_error('aclImdb/test/neg'))
+
+print("Calculating positive test reviews ...")
+print(calculate_error('aclImdb/test/pos'))
 
