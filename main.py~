@@ -19,8 +19,9 @@ def prepare_data(directory):
 
 
 def remove_uncommon_words(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 10,
-            counter.most_common()):
+    # Remove words that occur less than 10 times
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 20,
+        counter.most_common()):
         del counter[key]
 
 
@@ -33,12 +34,11 @@ def make_counter(words):
 
 
 # Data sets split into Counters
-test_neg = make_counter(prepare_data('aclImdb/test/neg'))
-test_pos = make_counter(prepare_data('aclImdb/test/pos'))
+# test_neg = make_counter(prepare_data('aclImdb/test/neg'))
+# test_pos = make_counter(prepare_data('aclImdb/test/pos'))
 train_neg = make_counter(prepare_data('aclImdb/train/neg'))
 train_pos = make_counter(prepare_data('aclImdb/train/pos'))
 all_train_data = train_neg + train_pos
-# print(all_data.most_common(5))
 
 total_numb_of_words = sum(all_train_data.values())
 neg_num_of_words = sum(train_neg.values())
@@ -57,26 +57,27 @@ neg_word_weights = dict()
 
 def make_word_weights():
     gamma = 1
-    for word in all_train_data.keys():
-        if word in train_pos.keys() and word not in all_train_data.most_common(20) and word not in stop_words:
-            pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
-
-        if word in train_neg.keys() and word not in all_train_data.most_common(20) and word not in stop_words:
-            neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
+    for word not in all_train_data.keys():
+        if  word not in stop_words:
+            if word in train_pos.keys():
+                pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
+            if word in train_neg.keys():
+                neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
 
 
 make_word_weights()
 
 def get_prediction(review):
+    alpha = 1
     input_counter = list_to_counter(review)
     probability_of_positive_reviews = 0.5
     probability_of_negative_reviews = 0.5
     product_of_pos = 1
     product_of_neg = 1
     for word in input_counter.keys():
-        product_of_pos *= (pos_word_weights.get(word, 0) + 1 **
+        product_of_pos *= (pos_word_weights.get(word, 0) + alpha **
                 input_counter.get(word))
-        product_of_neg *= (neg_word_weights.get(word, 0) + 1 **
+        product_of_neg *= (neg_word_weights.get(word, 0) + alpha **
                 input_counter.get(word))
     prediction = ((product_of_pos * probability_of_positive_reviews) /
             ((product_of_pos * probability_of_positive_reviews) +
