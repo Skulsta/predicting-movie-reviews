@@ -57,8 +57,8 @@ neg_word_weights = dict()
 
 def make_word_weights():
     gamma = 1
-    for word not in all_train_data.keys():
-        if  word not in stop_words:
+    for word in all_train_data.keys():
+        if word not in stop_words:
             if word in train_pos.keys():
                 pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
             if word in train_neg.keys():
@@ -68,7 +68,7 @@ def make_word_weights():
 make_word_weights()
 
 def get_prediction(review):
-    alpha = 1
+    alpha = 100
     input_counter = list_to_counter(review)
     probability_of_positive_reviews = 0.5
     probability_of_negative_reviews = 0.5

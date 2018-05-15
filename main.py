@@ -56,7 +56,7 @@ pos_word_weights = dict()
 neg_word_weights = dict()
 
 def make_word_weights():
-    gamma = 1
+    gamma = 100
     for word in all_train_data.keys():
         if word not in stop_words:
             if word in train_pos.keys():
