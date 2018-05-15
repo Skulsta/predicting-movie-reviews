@@ -3,7 +3,7 @@ from collections import Counter
 from itertools import dropwhile
 import re
 
-# stop_words = Path('aclImdb/stopwords.txt').read_text()
+stop_words = Path('aclImdb/stopwords.txt').read_text()
 
 
 def prepare_data(directory):
@@ -19,7 +19,7 @@ def prepare_data(directory):
 
 
 def remove_uncommon_words(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 20,
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 10,
             counter.most_common()):
         del counter[key]
 
@@ -58,10 +58,12 @@ neg_word_weights = dict()
 def make_word_weights():
     gamma = 1
     for word in all_train_data.keys():
-        if word in train_pos.keys():
-            pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
-        if word in train_neg.keys():
-            neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
+        if word not in all_train_data.most_common(20) and word not in stop_words:
+            if word in train_pos.keys():
+                pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
+
+            if word in train_neg.keys():
+                neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
 
 
 make_word_weights()
