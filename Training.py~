@@ -199,9 +199,8 @@ def get_prediction(text):
     for word in text_counts:
         product_of_positive *= positive_word_weights.get(word, 0) + 1 ** text_counts.get(word)
         product_of_negative *= negative_word_weights.get(word, 0) + 1 ** text_counts.get(word)
-    prediction = ((product_of_positive * probability_of_positive_reviews) / \
-                 ((product_of_positive * probability_of_positive_reviews) +
-                 (product_of_negative * probability_of_negative_reviews)))
+    prediction = (product_of_positive * probability_of_positive_reviews) / \
+                 (product_of_positive * probability_of_positive_reviews + product_of_negative * probability_of_negative_reviews)
     return prediction
 
 
