@@ -2,6 +2,7 @@ from pathlib import Path
 from collections import Counter
 from itertools import dropwhile
 import re
+import pickle
 
 stop_words = Path('aclImdb/stopwords.txt').read_text()
 
@@ -20,17 +21,35 @@ def prepare_data(directory):
 
 def remove_uncommon_words(counter):
     # Remove words that occur less than 10 times
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 20,
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 10,
         counter.most_common()):
         del counter[key]
 
 
-def make_counter(words):
+def remove_stopwords(counter):
+    for word in list(counter):
+        if word in stop_words:
+            del counter[word]
+
+
+def make_counter(reviews):
     counter = Counter()
-    for word in words:
-        counter.update(word)
+    for words in reviews:
+        counter.update(words)
     remove_uncommon_words(counter)
+    remove_stopwords(counter)
     return counter
+
+
+def prepare_input(review):
+    result = []
+    if isinstance(review, list):
+        # text = ' '.join(review)
+        # words = re.split('\s+', text)
+        for word in review:
+            if word not in stop_words:
+                result.append(word)
+    return result
 
 
 # Data sets split into Counters
@@ -40,59 +59,65 @@ train_neg = make_counter(prepare_data('aclImdb/train/neg'))
 train_pos = make_counter(prepare_data('aclImdb/train/pos'))
 all_train_data = train_neg + train_pos
 
-total_numb_of_words = sum(all_train_data.values())
 neg_num_of_words = sum(train_neg.values())
 pos_num_of_words = sum(train_pos.values())
 # words_and_weights = dict()
-
-def list_to_counter(review):
-    if isinstance(review, list):
-        text = ' '.join(review)
-        words = re.split('\s+', text)
-    return Counter(words)
 
 
 pos_word_weights = dict()
 neg_word_weights = dict()
 
 def make_word_weights():
-    gamma = 1
     for word in all_train_data.keys():
-        if word not in stop_words:
-            if word in train_pos.keys():
-                pos_word_weights[word] = (train_pos.get(word) / pos_num_of_words) * gamma
-            if word in train_neg.keys():
-                neg_word_weights[word] = (train_neg.get(word) / neg_num_of_words) * gamma
+        if word in train_pos.keys():
+            pos_word_weights[word] = (train_pos.get(word) /
+                    pos_num_of_words)
+        if word in train_neg.keys():
+            neg_word_weights[word] = (train_neg.get(word) /
+                    neg_num_of_words)
 
 
-make_word_weights()
+# make_word_weights()
 
+def save_obj(obj, name):
+    with open('word_weights/' + name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def load_obj(name):
+    with open('word_weights/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
+
+
+# save_obj(pos_word_weights, 'pos_word_weights')
+# save_obj(neg_word_weights, 'neg_word_weights')
+
+pos_word_weights = load_obj('pos_word_weights')
+neg_word_weights = load_obj('neg_word_weights')
+
+
+probability_of_positive_reviews = 0.5
+probability_of_negative_reviews = 0.5
 def get_prediction(review):
-    alpha = 100
-    input_counter = list_to_counter(review)
-    probability_of_positive_reviews = 0.5
-    probability_of_negative_reviews = 0.5
+    input_counter = prepare_input(review)
+    alpha = 0.8
     product_of_pos = 1
     product_of_neg = 1
-    for word in input_counter.keys():
-        product_of_pos *= (pos_word_weights.get(word, 0) + alpha **
-                input_counter.get(word))
-        product_of_neg *= (neg_word_weights.get(word, 0) + alpha **
-                input_counter.get(word))
-    prediction = ((product_of_pos * probability_of_positive_reviews) /
-            ((product_of_pos * probability_of_positive_reviews) +
-                (product_of_neg * probability_of_negative_reviews)))
+    for word in input_counter:
+        if word in pos_word_weights and word in neg_word_weights:
+            product_of_pos *= (pos_word_weights.get(word, 0) + alpha)
+            product_of_neg *= (neg_word_weights.get(word, 0) + alpha)
+    prediction = ((product_of_pos) / (product_of_pos +  product_of_neg))
     return prediction
 
 
-print(get_prediction(prepare_data('aclImdb/test/neg')[23]))
-print(get_prediction(prepare_data('aclImdb/test/pos')[23]))
+# print(get_prediction('aclImdb/test/neg')[30])
+# print(get_prediction('aclImdb/test/neg'))
 
-# print("Negative reviews: ")
-# run_test_set('aclImdb/test/neg')
+# print(list_to_counter(prepare_data('aclImdb/test/neg')[30]))
+# print(prepare_data('aclImdb/test/neg')[30])
 
-# print("\nPositive reviews: ")
-# run_test_set('aclImdb/test/pos')
+
 
 def calculate_error():
     neg_test_reviews = 'aclImdb/test/neg'
@@ -117,10 +142,12 @@ def calculate_error():
             str(len(prepare_data(pos_test_reviews))) + " positive reviews")
     print("Error rate for positive reviews: " + str(correct_pos_prediction /
         len(prepare_data(pos_test_reviews))))
-    return (correct_neg_prediction + correct_pos_prediction) / (len(prepare_data(neg_test_reviews)) +
-            len(prepare_data(pos_test_reviews)))
+    return ((correct_neg_prediction + correct_pos_prediction) / (len(prepare_data(neg_test_reviews)) +
+            len(prepare_data(pos_test_reviews))))
 
+
+print(get_prediction('aclImdb/test/neg')[:30])
+print(get_prediction('aclImdb/test/pos')[30])
 
 print("Calculating test reviews ...")
 print(calculate_error())
-
