@@ -18,12 +18,6 @@ def prepare_data(directory):
     return data
 
 
-def remove_stopwords(counter):
-    for word in list(counter):
-        if word in stop_words:
-            del counter[word]
-
-
 def make_counter(reviews):
     result = []
     for review in reviews:
@@ -36,13 +30,12 @@ def make_counter(reviews):
 def prepare_input(review):
     result = []
     for word in review:
-        if word not in stop_words and word in all_train_data:
-            result.append(word)
+        result.append(word)
     return result
 
 
 def remove_least_common(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 30, counter.most_common()):
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 10, counter.most_common()):
         del counter[key]
     return counter
 
@@ -54,7 +47,6 @@ train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
 
 neg_num_of_words = sum(train_neg.values())
 pos_num_of_words = sum(train_pos.values())
-# words_and_weights = dict()
 
 pos_word_weights = dict()
 neg_word_weights = dict()
@@ -69,7 +61,7 @@ def make_word_weights():
                     neg_num_of_words)
 
 
-# make_word_weights()
+make_word_weights()
 
 def save_obj(obj, name):
     with open('word_weights/' + name + '.pkl', 'wb') as f:
@@ -81,8 +73,8 @@ def load_obj(name):
         return pickle.load(f)
 
 
-# save_obj(pos_word_weights, 'pos_word_weights')
-# save_obj(neg_word_weights, 'neg_word_weights')
+save_obj(pos_word_weights, 'pos_word_weights')
+save_obj(neg_word_weights, 'neg_word_weights')
 
 pos_word_weights = load_obj('pos_word_weights')
 neg_word_weights = load_obj('neg_word_weights')
@@ -97,8 +89,8 @@ def get_prediction(review):
         if word in pos_word_weights and word in neg_word_weights:
             product_of_pos *= (pos_word_weights.get(word, 0) + alpha)
             product_of_neg *= (neg_word_weights.get(word, 0) + alpha)
-    prediction = ((product_of_pos) /
-            ((product_of_pos) + (product_of_neg)))
+    prediction = ((product_of_pos * 0.5) /
+            (product_of_pos * 0.5 + product_of_neg * 0.5))
     return prediction
 
 

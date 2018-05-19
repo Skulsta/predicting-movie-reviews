@@ -30,28 +30,26 @@ def make_counter(reviews):
 def prepare_input(review):
     result = []
     for word in review:
-        if word not in stop_words and word in all_train_data:
-            result.append(word)
+        result.append(word)
     return result
 
 
 def remove_least_common(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 30, counter.most_common()):
+    for key, count in dropwhile(lambda key_count: key_count[1] >= 10, counter.most_common()):
         del counter[key]
     return counter
 
 
 # Data sets split into Counters. Least common words are removed.
-all_train_data = remove_least_common(make_counter(prepare_data('aclImdb/train')))
-train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
-train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
+# all_train_data = remove_least_common(make_counter(prepare_data('aclImdb/train')))
+# train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
+# train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
 
-neg_num_of_words = sum(train_neg.values())
-pos_num_of_words = sum(train_pos.values())
-# words_and_weights = dict()
+# neg_num_of_words = sum(train_neg.values())
+# pos_num_of_words = sum(train_pos.values())
 
-pos_word_weights = dict()
-neg_word_weights = dict()
+# pos_word_weights = dict()
+# neg_word_weights = dict()
 
 def make_word_weights():
     for word in all_train_data.keys():
@@ -91,8 +89,8 @@ def get_prediction(review):
         if word in pos_word_weights and word in neg_word_weights:
             product_of_pos *= (pos_word_weights.get(word, 0) + alpha)
             product_of_neg *= (neg_word_weights.get(word, 0) + alpha)
-    prediction = ((product_of_pos) /
-            ((product_of_pos) + (product_of_neg)))
+    prediction = ((product_of_pos * 0.5) /
+            (product_of_pos * 0.5 + product_of_neg * 0.5))
     return prediction
 
 
