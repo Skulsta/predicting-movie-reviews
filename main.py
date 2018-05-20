@@ -3,8 +3,9 @@ from collections import Counter
 from itertools import dropwhile
 import re
 import pickle
+import math
 
-stop_words = Path('aclImdb/stopwords.txt').read_text()
+# stop_words = Path('aclImdb/stopwords.txt').read_text()
 
 def prepare_data(directory):
     data = []
@@ -22,8 +23,8 @@ def make_counter(reviews):
     result = []
     for review in reviews:
         for word in review:
-            if word not in stop_words:
-                result.append(word)
+            # if word not in stop_words:
+            result.append(word)
     return Counter(result)
 
 
@@ -41,27 +42,44 @@ def remove_least_common(counter):
 
 
 # Data sets split into Counters. Least common words are removed.
-# all_train_data = remove_least_common(make_counter(prepare_data('aclImdb/train')))
-# train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
-# train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
+all_train_data = remove_least_common(make_counter(prepare_data('aclImdb/train')))
+train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
+train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
 
 # neg_num_of_words = sum(train_neg.values())
 # pos_num_of_words = sum(train_pos.values())
+# total_num_of_words = sum(all_train_data.values())
 
-# pos_word_weights = dict()
-# neg_word_weights = dict()
+total_docs = len(prepare_data('aclImdb/train'))
+num_of_neg_docs = len(prepare_data('aclImdb/train/neg'))
+num_of_pos_docs = len(prepare_data('aclImdb/train/pos'))
+
+pos_logprior = math.log(num_of_pos_docs/total_docs)
+neg_logprior = math.log(num_of_neg_docs/total_docs)
+
+
+pos_word_weights = dict()
+neg_word_weights = dict()
+pos_loglikelihood = dict()
+neg_loglikelihood = dict()
 
 def make_word_weights():
     for word in all_train_data.keys():
-        if word in train_pos:
-            pos_word_weights[word] = (train_pos.get(word) /
-                    pos_num_of_words)
-        if word in train_neg:
-            neg_word_weights[word] = (train_neg.get(word) /
-                    neg_num_of_words)
+        pos_word_weights[word] = train_pos.get(word, 0) + 1
+        neg_word_weights[word] = train_neg.get(word, 0) + 1
 
 
-# make_word_weights()
+# Loglikelihood
+def get_loglikelihood():
+    for word in all_train_data:
+        pos_loglikelihood[word] = math.log((train_pos.get(word, 0) + 1) /
+                sum(pos_word_weights.values()))
+        neg_loglikelihood[word] = math.log((train_neg.get(word, 0) + 1) /
+                sum(neg_word_weights.values()))
+
+
+make_word_weights()
+get_loglikelihood()
 
 def save_obj(obj, name):
     with open('word_weights/' + name + '.pkl', 'wb') as f:
@@ -75,23 +93,30 @@ def load_obj(name):
 
 # save_obj(pos_word_weights, 'pos_word_weights')
 # save_obj(neg_word_weights, 'neg_word_weights')
+save_obj(pos_loglikelihood, 'pos_loglikelihood')
+save_obj(neg_loglikelihood, 'neg_loglikelihood')
 
-pos_word_weights = load_obj('pos_word_weights')
-neg_word_weights = load_obj('neg_word_weights')
+# pos_word_weights = load_obj('pos_word_weights')
+# neg_word_weights = load_obj('neg_word_weights')
+pos_loglikelihood  = load_obj('pos_loglikelihood')
+neg_loglikelihood  = load_obj('neg_loglikelihood')
+
 
 
 def get_prediction(review):
     input_counter = prepare_input(review)
     alpha = 1
-    product_of_pos = 1
-    product_of_neg = 1
+    pos_prediction = 1
+    neg_prediction = 1
     for word in input_counter:
-        if word in pos_word_weights and word in neg_word_weights:
-            product_of_pos *= (pos_word_weights.get(word, 0) + alpha)
-            product_of_neg *= (neg_word_weights.get(word, 0) + alpha)
-    prediction = ((product_of_pos * 0.5) /
-            (product_of_pos * 0.5 + product_of_neg * 0.5))
-    return prediction
+        if word in all_train_data:
+            pos_prediction += (pos_logprior + pos_loglikelihood.get(word))
+            neg_prediction += (neg_logprior + neg_loglikelihood.get(word))
+    prediction = max(pos_prediction, neg_prediction)
+    if prediction is pos_prediction:
+        return 1
+    else:
+        return 0
 
 
 def calculate_error():
@@ -101,11 +126,11 @@ def calculate_error():
     correct_pos_prediction = 0
 
     for review in neg_test_reviews:
-        if (get_prediction(review) < 0.5):
+        if (get_prediction(review) == 0):
             correct_neg_prediction += 1
 
     for review in pos_test_reviews:
-        if (get_prediction(review) > 0.5):
+        if (get_prediction(review) ==  1):
              correct_pos_prediction += 1
 
     print("------------")
