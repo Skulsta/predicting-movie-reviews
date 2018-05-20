@@ -11,8 +11,11 @@ def get_stop_words():
     return re.split('\s+', filepath)
 
 
-stop_words = get_stop_words()
+def prepare_text(text):
+    return re.split('\s+', re.sub(r'[^\w\s]','', text).lower())
 
+
+stop_words = get_stop_words()
 
 def prepare_data(directory):
     data = []
@@ -54,8 +57,53 @@ def make_counter(array_of_arrays):
     remove_stop_words(counter)
     return counter
 
+
 # Create Counters and remove uncommon words.
 counter_all_reviews = make_counter(all_reviews)
 counter_pos_reviews = make_counter(pos_reviews)
 counter_neg_reviews = make_counter(neg_reviews)
 
+def get_word_weight():
+    pos_word_weights = 0
+    neg_word_weights = 0
+    for word in counter_all_reviews:
+        pos_word_weights += (counter_pos_reviews.get(word, 0) + 1)
+        neg_word_weights += (counter_neg_reviews.get(word, 0) + 1)
+    return neg_word_weights, pos_word_weights
+
+
+pos_word_weights, neg_word_weights = get_word_weight()
+
+
+def get_loglikelihood():
+    pos_likelihood = dict()
+    neg_likelihood = dict()
+    for word in counter_pos_reviews:
+        pos_likelihood[word] = ((counter_pos_reviews.get(word, 0) + 1) /
+                pos_word_weights)
+    for word in counter_neg_reviews:
+        neg_likelihood[word] = ((counter_neg_reviews.get(word, 0) +
+            1) / neg_word_weights)
+    return pos_likelihood, neg_likelihood
+
+
+pos_likelihood, neg_likelihood = get_loglikelihood()
+print(pos_likelihood.get('amazing'))
+print(neg_likelihood.get('amazing'))
+
+def get_prediction(review):
+    pos_prediction = 0
+    neg_prediction = 0
+    for word in review:
+        if word in counter_all_reviews:
+            pos_prediction += (pos_logprior + pos_likelihood.get(word))
+            neg_prediction += (neg_logprior + neg_likelihood.get(word))
+    if max(pos_prediction, neg_prediction) is pos_prediction:
+        return 1
+    else:
+        return 0
+
+
+sample_text = 'such a terrible and aweful movie. Just so bad. Bad I say.'
+print(prepare_text(sample_text))
+print(get_prediction(prepare_text(sample_text)))
