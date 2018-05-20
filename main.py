@@ -41,40 +41,37 @@ def remove_least_common(counter):
     return counter
 
 
-# Data sets split into Counters. Least common words are removed.
 all_train_data = remove_least_common(make_counter(prepare_data('aclImdb/train')))
-train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
-train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
-
-# neg_num_of_words = sum(train_neg.values())
-# pos_num_of_words = sum(train_pos.values())
-# total_num_of_words = sum(all_train_data.values())
-
 total_docs = len(prepare_data('aclImdb/train'))
 num_of_neg_docs = len(prepare_data('aclImdb/train/neg'))
 num_of_pos_docs = len(prepare_data('aclImdb/train/pos'))
-
 pos_logprior = math.log(num_of_pos_docs/total_docs)
 neg_logprior = math.log(num_of_neg_docs/total_docs)
+total_num_of_words = sum(all_train_data.values())
+laplace = 1
 
-
+# def change_word_weights():
+train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
+train_pos = remove_least_common(make_counter(prepare_data('aclImdb/train/pos')))
 pos_word_weights = dict()
 neg_word_weights = dict()
+neg_num_of_words = sum(train_neg.values())
+pos_num_of_words = sum(train_pos.values())
 pos_loglikelihood = dict()
 neg_loglikelihood = dict()
 
+
 def make_word_weights():
     for word in all_train_data.keys():
-        pos_word_weights[word] = train_pos.get(word, 0) + 1
-        neg_word_weights[word] = train_neg.get(word, 0) + 1
+        pos_word_weights[word] = train_pos.get(word, 0) + total_num_of_words
+        neg_word_weights[word] = train_neg.get(word, 0) + total_num_of_words
 
 
-# Loglikelihood
 def get_loglikelihood():
     for word in all_train_data:
-        pos_loglikelihood[word] = math.log((train_pos.get(word, 0) + 1) /
+        pos_loglikelihood[word] = math.log((train_pos.get(word, 0) + laplace) /
                 sum(pos_word_weights.values()))
-        neg_loglikelihood[word] = math.log((train_neg.get(word, 0) + 1) /
+        neg_loglikelihood[word] = math.log((train_neg.get(word, 0) + laplace) /
                 sum(neg_word_weights.values()))
 
 
@@ -91,13 +88,9 @@ def load_obj(name):
         return pickle.load(f)
 
 
-# save_obj(pos_word_weights, 'pos_word_weights')
-# save_obj(neg_word_weights, 'neg_word_weights')
 save_obj(pos_loglikelihood, 'pos_loglikelihood')
 save_obj(neg_loglikelihood, 'neg_loglikelihood')
 
-# pos_word_weights = load_obj('pos_word_weights')
-# neg_word_weights = load_obj('neg_word_weights')
 pos_loglikelihood  = load_obj('pos_loglikelihood')
 neg_loglikelihood  = load_obj('neg_loglikelihood')
 
@@ -105,7 +98,6 @@ neg_loglikelihood  = load_obj('neg_loglikelihood')
 
 def get_prediction(review):
     input_counter = prepare_input(review)
-    alpha = 1
     pos_prediction = 1
     neg_prediction = 1
     for word in input_counter:
