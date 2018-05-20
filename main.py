@@ -5,7 +5,7 @@ import re
 import pickle
 import math
 
-# stop_words = Path('aclImdb/stopwords.txt').read_text()
+stop_words = Path('aclImdb/stopwords.txt').read_text()
 
 def prepare_data(directory):
     data = []
@@ -23,8 +23,8 @@ def make_counter(reviews):
     result = []
     for review in reviews:
         for word in review:
-            # if word not in stop_words:
-            result.append(word)
+            if word not in stop_words:
+                result.append(word)
     return Counter(result)
 
 
@@ -48,7 +48,7 @@ num_of_pos_docs = len(prepare_data('aclImdb/train/pos'))
 pos_logprior = math.log(num_of_pos_docs/total_docs)
 neg_logprior = math.log(num_of_neg_docs/total_docs)
 total_num_of_words = sum(all_train_data.values())
-laplace = 10
+laplace = 20
 
 def change_word_weights():
     train_neg = remove_least_common(make_counter(prepare_data('aclImdb/train/neg')))
