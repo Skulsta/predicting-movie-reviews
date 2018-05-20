@@ -5,7 +5,14 @@ import re
 import pickle
 import math
 
-stop_words = Path('aclImdb/stopwords.txt').read_text()
+def get_stop_words():
+    stop_words = []
+    filepath = Path('aclImdb/stopwords.txt').read_text()
+    return re.split('\s+', filepath)
+
+
+stop_words = get_stop_words()
+
 
 def prepare_data(directory):
     data = []
@@ -33,11 +40,22 @@ def remove_uncommon_words(counter):
     return counter
 
 
+def remove_stop_words(counter):
+    for word in stop_words:
+        del counter[word]
+    return counter
+
+
 def make_counter(array_of_arrays):
     counter = Counter()
     for review in array_of_arrays:
         counter.update(review)
-    return remove_uncommon_words(counter)
+    remove_uncommon_words(counter)
+    remove_stop_words(counter)
+    return counter
 
+# Create Counters and remove uncommon words.
+counter_all_reviews = make_counter(all_reviews)
+counter_pos_reviews = make_counter(pos_reviews)
+counter_neg_reviews = make_counter(neg_reviews)
 
-print(make_counter(pos_reviews).most_common()[:-1])
