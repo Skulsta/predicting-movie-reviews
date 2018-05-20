@@ -33,9 +33,12 @@ pos_reviews = prepare_data('aclImdb/train/pos')
 neg_reviews = prepare_data('aclImdb/train/neg')
 all_reviews = pos_reviews + neg_reviews
 
+pos_test_reviews = prepare_data('aclImdb/test/pos')
+neg_test_reviews = prepare_data('aclImdb/test/neg')
+
 # Logprior. Probability of an arbritrary review being positive or negative. Using log.
-pos_logprior = len(pos_reviews) / len(all_reviews)
-neg_logprior = len(neg_reviews) / len(all_reviews)
+pos_logprior = (len(pos_reviews) / len(all_reviews))
+neg_logprior = (len(neg_reviews) / len(all_reviews))
 
 def remove_uncommon_words(counter):
     for key, count in dropwhile(lambda key_count: key_count[1] >= 10, counter.most_common()):
@@ -72,38 +75,94 @@ def get_word_weight():
     return neg_word_weights, pos_word_weights
 
 
-pos_word_weights, neg_word_weights = get_word_weight()
-
-
 def get_loglikelihood():
-    pos_likelihood = dict()
-    neg_likelihood = dict()
+    pos_word_weights, neg_word_weights = get_word_weight()
+    pos_loglikelihood = dict()
+    neg_loglikelihood = dict()
     for word in counter_pos_reviews:
-        pos_likelihood[word] = ((counter_pos_reviews.get(word, 0) + 1) /
-                pos_word_weights)
+        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) +
+            1) /
+            pos_word_weights)
     for word in counter_neg_reviews:
-        neg_likelihood[word] = ((counter_neg_reviews.get(word, 0) +
-            1) / neg_word_weights)
-    return pos_likelihood, neg_likelihood
+        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) +
+            1) /
+            neg_word_weights)
+    return pos_loglikelihood, neg_loglikelihood
 
 
-pos_likelihood, neg_likelihood = get_loglikelihood()
-print(pos_likelihood.get('amazing'))
-print(neg_likelihood.get('amazing'))
+def save_obj(obj, name):
+    with open('loglikelihoods/' + name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def load_obj(name):
+    with open('loglikelihoods/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
+
+
+# pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
+# save_obj(pos_loglikelihood, 'pos_loglikelihood')
+# save_obj(neg_loglikelihood, 'neg_loglikelihood')
+
+pos_loglikelihood = load_obj('pos_loglikelihood')
+neg_loglikelihood = load_obj('neg_loglikelihood')
+
+
 
 def get_prediction(review):
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
         if word in counter_all_reviews:
-            pos_prediction += (pos_logprior + pos_likelihood.get(word))
-            neg_prediction += (neg_logprior + neg_likelihood.get(word))
+            pos_prediction += (pos_logprior +
+                    pos_loglikelihood.get(word, 0) + 1)
+            neg_prediction += (neg_logprior +
+                    neg_loglikelihood.get(word, 0) + 1)
     if max(pos_prediction, neg_prediction) is pos_prediction:
         return 1
     else:
         return 0
 
 
-sample_text = 'such a terrible and aweful movie. Just so bad. Bad I say.'
-print(prepare_text(sample_text))
-print(get_prediction(prepare_text(sample_text)))
+
+def calculate_error():
+    correct_pos_prediction = 0
+    correct_neg_prediction = 0
+
+    for review in pos_test_reviews:
+        if (get_prediction(review) == 1):
+            correct_pos_prediction += 1
+
+    for review in neg_test_reviews:
+        if (get_prediction(review) == 0):
+            correct_neg_prediction += 1
+
+    print("Predicted correctly on: " + str(correct_pos_prediction) + " out of "
+            + str(len(pos_reviews)) + " positive reviews")
+    print("Error rate for positive reviews: " + str(correct_pos_prediction /
+        len(pos_reviews)))
+    print("Predicted correctly on: " + str(correct_neg_prediction) + " out of "
+            + str(len(neg_reviews)) + " negative reviews")
+    print("Error rate for negative reviews: " + str(correct_neg_prediction /
+        len(neg_reviews)))
+    return ((correct_pos_prediction + correct_neg_prediction) /
+            (len(pos_reviews) + len(neg_reviews)))
+
+
+print("Calculating test reviews ...")
+print(calculate_error())
+
+
+def temporary_tests():
+    sample_text = 'such an awesome and wonderful movie. Just great.'
+    print(prepare_text(sample_text))
+    print(get_prediction(prepare_text(sample_text)))
+
+    print(pos_loglikelihood.get('amazing'))
+    print(neg_loglikelihood.get('amazing'))
+
+    for review in pos_test_reviews[:2]:
+        print(review)
+
+
+# temporary_tests()
