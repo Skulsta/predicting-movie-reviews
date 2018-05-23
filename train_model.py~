@@ -17,16 +17,19 @@ def prepare_text(text):
 
 stop_words = get_stop_words()
 
+
 def prepare_data(directory):
     data = []
     dirpath = Path(directory)
     assert(dirpath.is_dir())
     for x in dirpath.iterdir():
         if x.is_file() and re.search('^\d+?_([1-9]|10)\.txt$', x.name):
-            data.append(re.split('\s+', re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
+            data.append(re.split('\s+',
+            re.sub(r'[^\w\s]','',Path(x).read_text()).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
     return data
+
 
 # Every review. Array of arrays. Punctuation removed. Everything is lower case.
 pos_reviews = prepare_data('aclImdb/train/pos')
@@ -37,11 +40,11 @@ pos_test_reviews = prepare_data('aclImdb/test/pos')
 neg_test_reviews = prepare_data('aclImdb/test/neg')
 
 # Logprior. Probability of an arbritrary review being positive or negative. Using log.
-pos_logprior = (len(pos_reviews) / len(all_reviews))
-neg_logprior = (len(neg_reviews) / len(all_reviews))
+pos_logprior = len(pos_reviews) / len(all_reviews)
+neg_logprior = len(neg_reviews) / len(all_reviews)
 
 def remove_uncommon_words(counter):
-    for key, count in dropwhile(lambda key_count: key_count[1] >= 10, counter.most_common()):
+    for key, count in dropwhile(lambda key_count: key_count[1] > 10, counter.most_common()):
         del counter[key]
     return counter
 
@@ -70,9 +73,11 @@ def get_word_weight():
     pos_word_weights = 0
     neg_word_weights = 0
     for word in counter_all_reviews:
-        pos_word_weights += (counter_pos_reviews.get(word, 0) + 1)
-        neg_word_weights += (counter_neg_reviews.get(word, 0) + 1)
-    return neg_word_weights, pos_word_weights
+        pos_word_weights += (counter_pos_reviews.get(word, 0) +
+                counter_all_reviews.get(word))
+        neg_word_weights += (counter_neg_reviews.get(word, 0) +
+                counter_all_reviews.get(word))
+    return pos_word_weights, neg_word_weights
 
 
 def get_loglikelihood():
@@ -80,12 +85,10 @@ def get_loglikelihood():
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_pos_reviews:
-        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) +
-            1) /
+        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 100) /
             pos_word_weights)
     for word in counter_neg_reviews:
-        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) +
-            1) /
+        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 100) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
@@ -100,30 +103,29 @@ def load_obj(name):
         return pickle.load(f)
 
 
-# pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
-# save_obj(pos_loglikelihood, 'pos_loglikelihood')
-# save_obj(neg_loglikelihood, 'neg_loglikelihood')
+pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
+save_obj(pos_loglikelihood, 'pos_loglikelihood')
+save_obj(neg_loglikelihood, 'neg_loglikelihood')
 
 pos_loglikelihood = load_obj('pos_loglikelihood')
 neg_loglikelihood = load_obj('neg_loglikelihood')
-
 
 
 def get_prediction(review):
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
-        if word in counter_all_reviews:
-            pos_prediction += (pos_logprior +
-                    pos_loglikelihood.get(word, 0) + 1)
-            neg_prediction += (neg_logprior +
-                    neg_loglikelihood.get(word, 0) + 1)
+        if word in counter_pos_reviews and word in counter_neg_reviews:
+            pos_prediction += (math.log(pos_logprior) +
+                    math.log(pos_loglikelihood.get(word, 0)))
+            neg_prediction += (math.log(neg_logprior) +
+                    math.log(neg_loglikelihood.get(word, 0)))
     if max(pos_prediction, neg_prediction) is pos_prediction:
         return 1
-    else:
+    elif max(pos_prediction, neg_prediction) is neg_prediction:
         return 0
-
-
+    else:
+        print('Something went very wrong when predicting class of: ' + review)
 
 def calculate_error():
     correct_pos_prediction = 0
@@ -165,4 +167,4 @@ def temporary_tests():
         print(review)
 
 
-temporary_tests()
+# temporary_tests()
