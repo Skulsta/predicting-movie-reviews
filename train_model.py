@@ -25,7 +25,7 @@ def prepare_data(directory):
     for x in dirpath.iterdir():
         if x.is_file() and re.search('^\d+?_([1-9]|10)\.txt$', x.name):
             data.append(re.split('\s+',
-            re.sub(r'[^\w\s]','',Path(x).read_text()).lower()))
+            re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
     return data
