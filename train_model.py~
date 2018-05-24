@@ -84,11 +84,11 @@ def get_loglikelihood():
     pos_word_weights, neg_word_weights = get_word_weight()
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
-    for word in counter_pos_reviews:
-        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 100) /
+    for word in counter_all_reviews:
+        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 10) /
             pos_word_weights)
-    for word in counter_neg_reviews:
-        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 100) /
+    for word in counter_all_reviews:
+        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 10) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
