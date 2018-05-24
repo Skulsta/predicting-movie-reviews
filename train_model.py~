@@ -85,10 +85,10 @@ def get_loglikelihood():
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_all_reviews:
-        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 20) /
+        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 0.001) /
             pos_word_weights)
     for word in counter_all_reviews:
-        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 20) /
+        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 0.001) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
@@ -117,9 +117,9 @@ def get_prediction(review):
     for word in review:
         if word in counter_pos_reviews and word in counter_neg_reviews:
             pos_prediction += (math.log(pos_logprior) +
-                    math.log(pos_loglikelihood.get(word, 0) + 1))
+                    math.log(pos_loglikelihood.get(word, 0)))
             neg_prediction += (math.log(neg_logprior) +
-                    math.log(neg_loglikelihood.get(word, 0) + 1))
+                    math.log(neg_loglikelihood.get(word, 0)))
     if max(pos_prediction, neg_prediction) is pos_prediction:
         return 1
     elif max(pos_prediction, neg_prediction) is neg_prediction:
