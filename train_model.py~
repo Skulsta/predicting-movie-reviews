@@ -25,7 +25,7 @@ def prepare_data(directory):
     for x in dirpath.iterdir():
         if x.is_file() and re.search('^\d+?_([1-9]|10)\.txt$', x.name):
             data.append(re.split('\s+',
-            re.sub(r'[^\w\s]','',Path(x).read_text()).lower()))
+            re.sub(r'[^\w\s]','',Path(x).read_text(errors='ignore')).lower()))
         elif x.is_dir():
             data.extend(prepare_data(x))
     return data
@@ -40,8 +40,8 @@ pos_test_reviews = prepare_data('aclImdb/test/pos')
 neg_test_reviews = prepare_data('aclImdb/test/neg')
 
 # Logprior. Probability of an arbritrary review being positive or negative. Using log.
-pos_logprior = len(pos_reviews) / len(all_reviews)
-neg_logprior = len(neg_reviews) / len(all_reviews)
+pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
+neg_logprior = math.log(len(neg_reviews) / len(all_reviews))
 
 def remove_uncommon_words(counter):
     for key, count in dropwhile(lambda key_count: key_count[1] > 10, counter.most_common()):
@@ -82,13 +82,16 @@ def get_word_weight():
 
 def get_loglikelihood():
     pos_word_weights, neg_word_weights = get_word_weight()
+    alpha = 0.01
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_all_reviews:
-        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 0.1) /
+        pos_loglikelihood[word] = math.log((counter_pos_reviews.get(word, 0) +
+            alpha) /
             pos_word_weights)
     for word in counter_all_reviews:
-        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 0.1) /
+        neg_loglikelihood[word] = math.log((counter_neg_reviews.get(word, 0) +
+            alpha) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
@@ -115,11 +118,11 @@ def get_prediction(review):
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
-        if word in counter_pos_reviews and word in counter_neg_reviews:
-            pos_prediction += (math.log(pos_logprior) +
-                    math.log(pos_loglikelihood.get(word, 0)))
-            neg_prediction += (math.log(neg_logprior) +
-                    math.log(neg_loglikelihood.get(word, 0)))
+        if word in counter_all_reviews:
+            pos_prediction += ((pos_logprior) +
+                    (pos_loglikelihood.get(word, 0)))
+            neg_prediction += ((neg_logprior) +
+                    (neg_loglikelihood.get(word, 0)))
     if max(pos_prediction, neg_prediction) is pos_prediction:
         return 1
     elif max(pos_prediction, neg_prediction) is neg_prediction:
@@ -168,4 +171,4 @@ def temporary_tests():
         print(review)
 
 
-temporary_tests()
+# temporary_tests()
