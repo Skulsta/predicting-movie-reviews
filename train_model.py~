@@ -74,9 +74,9 @@ def get_word_weight():
     neg_word_weights = 0
     for word in counter_all_reviews:
         pos_word_weights += (counter_pos_reviews.get(word, 0) +
-                counter_all_reviews.get(word))
+                1)
         neg_word_weights += (counter_neg_reviews.get(word, 0) +
-                counter_all_reviews.get(word))
+                1)
     return pos_word_weights, neg_word_weights
 
 
@@ -85,10 +85,10 @@ def get_loglikelihood():
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_all_reviews:
-        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 10) /
+        pos_loglikelihood[word] = ((counter_pos_reviews.get(word, 0) + 20) /
             pos_word_weights)
     for word in counter_all_reviews:
-        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 10) /
+        neg_loglikelihood[word] = ((counter_neg_reviews.get(word, 0) + 20) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
@@ -117,15 +117,16 @@ def get_prediction(review):
     for word in review:
         if word in counter_pos_reviews and word in counter_neg_reviews:
             pos_prediction += (math.log(pos_logprior) +
-                    math.log(pos_loglikelihood.get(word, 0)))
+                    math.log(pos_loglikelihood.get(word, 0) + 1))
             neg_prediction += (math.log(neg_logprior) +
-                    math.log(neg_loglikelihood.get(word, 0)))
+                    math.log(neg_loglikelihood.get(word, 0) + 1))
     if max(pos_prediction, neg_prediction) is pos_prediction:
         return 1
     elif max(pos_prediction, neg_prediction) is neg_prediction:
         return 0
     else:
         print('Something went very wrong when predicting class of: ' + review)
+
 
 def calculate_error():
     correct_pos_prediction = 0
@@ -167,4 +168,4 @@ def temporary_tests():
         print(review)
 
 
-# temporary_tests()
+temporary_tests()

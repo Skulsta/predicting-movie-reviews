@@ -74,9 +74,9 @@ def get_word_weight():
     neg_word_weights = 0
     for word in counter_all_reviews:
         pos_word_weights += (counter_pos_reviews.get(word, 0) +
-                counter_all_reviews.get(word))
+                1)
         neg_word_weights += (counter_neg_reviews.get(word, 0) +
-                counter_all_reviews.get(word))
+                1)
     return pos_word_weights, neg_word_weights
 
 
@@ -127,6 +127,7 @@ def get_prediction(review):
     else:
         print('Something went very wrong when predicting class of: ' + review)
 
+
 def calculate_error():
     correct_pos_prediction = 0
     correct_neg_prediction = 0
@@ -167,4 +168,4 @@ def temporary_tests():
         print(review)
 
 
-# temporary_tests()
+temporary_tests()
