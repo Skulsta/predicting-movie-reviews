@@ -15,9 +15,6 @@ def prepare_text(text):
     return re.split('\s+', re.sub(r'[^\w\s]','', text).lower())
 
 
-stop_words = get_stop_words()
-
-
 def prepare_data(directory):
     data = []
     dirpath = Path(directory)
@@ -30,18 +27,6 @@ def prepare_data(directory):
             data.extend(prepare_data(x))
     return data
 
-
-# Every review. Array of arrays. Punctuation removed. Everything is lower case.
-pos_reviews = prepare_data('aclImdb/train/pos')
-neg_reviews = prepare_data('aclImdb/train/neg')
-all_reviews = pos_reviews + neg_reviews
-
-pos_test_reviews = prepare_data('aclImdb/test/pos')
-neg_test_reviews = prepare_data('aclImdb/test/neg')
-
-# Logprior. Probability of an arbritrary review being positive or negative. Using log.
-pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
-neg_logprior = math.log(len(neg_reviews) / len(all_reviews))
 
 def remove_uncommon_words(counter):
     for key, count in dropwhile(lambda key_count: key_count[1] > 10, counter.most_common()):
@@ -64,11 +49,6 @@ def make_counter(array_of_arrays):
     return counter
 
 
-# Create Counters and remove uncommon words.
-counter_all_reviews = make_counter(all_reviews)
-counter_pos_reviews = make_counter(pos_reviews)
-counter_neg_reviews = make_counter(neg_reviews)
-
 def get_word_weight():
     pos_word_weights = 0
     neg_word_weights = 0
@@ -82,7 +62,7 @@ def get_word_weight():
 
 def get_loglikelihood():
     pos_word_weights, neg_word_weights = get_word_weight()
-    alpha = 0.01
+    alpha = 10
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_all_reviews:
@@ -106,19 +86,17 @@ def load_obj(name):
         return pickle.load(f)
 
 
-pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
-save_obj(pos_loglikelihood, 'pos_loglikelihood')
-save_obj(neg_loglikelihood, 'neg_loglikelihood')
+def save_loglikelihoods():
+    pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
+    save_obj(pos_loglikelihood, 'pos_loglikelihood')
+    save_obj(neg_loglikelihood, 'neg_loglikelihood')
+    
 
-pos_loglikelihood = load_obj('pos_loglikelihood')
-neg_loglikelihood = load_obj('neg_loglikelihood')
-
-
-def get_prediction(review):
+def get_prediction(review, pos_loglikelihood, neg_loglikelihood):
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
-        if word in counter_all_reviews:
+        if word in (pos_loglikelihood or neg_loglikelihood):
             pos_prediction += ((pos_logprior) +
                     (pos_loglikelihood.get(word, 0)))
             neg_prediction += ((neg_logprior) +
@@ -136,11 +114,11 @@ def calculate_error():
     correct_neg_prediction = 0
 
     for review in pos_test_reviews:
-        if (get_prediction(review) == 1):
+        if (get_prediction(review, pos_loglikelihood, neg_loglikelihood) == 1):
             correct_pos_prediction += 1
 
     for review in neg_test_reviews:
-        if (get_prediction(review) == 0):
+        if (get_prediction(review, pos_loglikelihood, neg_loglikelihood) == 0):
             correct_neg_prediction += 1
 
     print("Predicted correctly on: " + str(correct_pos_prediction) + " out of "
@@ -151,24 +129,41 @@ def calculate_error():
             + str(len(neg_reviews)) + " negative reviews")
     print("Error rate for negative reviews: " + str(correct_neg_prediction /
         len(neg_reviews)))
+    print("Overall error rate: ")
     return ((correct_pos_prediction + correct_neg_prediction) /
             (len(pos_reviews) + len(neg_reviews)))
 
 
-print("Calculating test reviews ...")
-print(calculate_error())
+if __name__ == '__main__':
+    stop_words = get_stop_words()
 
+    # Every review. Array of arrays. Punctuation removed. Everything is lower case.
+    pos_reviews = prepare_data('aclImdb/train/pos')
+    neg_reviews = prepare_data('aclImdb/train/neg')
+    all_reviews = pos_reviews + neg_reviews
 
-def temporary_tests():
-    sample_text = 'such an awesome and wonderful movie. Just great.'
-    print(prepare_text(sample_text))
-    print(get_prediction(prepare_text(sample_text)))
+    pos_test_reviews = prepare_data('aclImdb/test/pos')
+    neg_test_reviews = prepare_data('aclImdb/test/neg')
 
-    print(pos_loglikelihood.get('amazing'))
-    print(neg_loglikelihood.get('amazing'))
+    # Logprior. Probability of an arbritrary review being positive or negative. Using log.
+    pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
+    neg_logprior = math.log(len(neg_reviews) / len(all_reviews))
 
-    for review in pos_test_reviews[:2]:
-        print(review)
+    # Create Counters and remove stop words and  uncommon words.
+    counter_all_reviews = make_counter(all_reviews)
+    counter_pos_reviews = make_counter(pos_reviews)
+    counter_neg_reviews = make_counter(neg_reviews)
 
+    # Uncomment to recalculate and save new values for loglikelihoods and words
+    # in counter_all_reviews.
+    # save_loglikelihoods()
 
-# temporary_tests()
+    # Load loglikelihood for each word that is left in training set from file.
+    pos_loglikelihood = load_obj('pos_loglikelihood')
+    neg_loglikelihood = load_obj('neg_loglikelihood')
+
+    # Using Multinomial Naive Bayes to calculate prediction on 25k test
+    # reviews. Prints error rate.
+    print("Calculating test reviews ...")
+    print(calculate_error())
+
