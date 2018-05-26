@@ -1,5 +1,7 @@
 from train_model import load_obj, prepare_data, get_prediction, prepare_text
+from pathlib import Path
 import math
+import sys
 
 
 def get_logprior():
@@ -16,8 +18,10 @@ def get_logprior():
 
 def predict_review(*args):
     review = ''
-    if args:
-        review = prepare_text(args)
+    if sys.argv:
+        print('yaya')
+        review = prepare_text(Path('reviews/' + str(sys.argv[1])).read_text())
+        print(review)
     else:
         print('Write your review here: ')
         review = prepare_text(input())
@@ -41,8 +45,10 @@ def get_prediction(prediction):
     result = 'Your review was calculated to be '
     if prediction == 1:
         result += 'positive'
-    else:
+    elif prediction == 0:
         result += 'negative'
+    else:
+        result += '... uncurtain'
     print(result)
 
 
@@ -52,8 +58,6 @@ if __name__ == '__main__':
     neg_loglikelihood = load_obj('neg_loglikelihood')
 
     pos_logprior, neg_logprior = get_logprior()
-
-    # print(predict_review(prepare_text("Such a terrible and bad movie.")))
 
     get_prediction(predict_review())
 

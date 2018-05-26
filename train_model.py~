@@ -44,8 +44,8 @@ def make_counter(array_of_arrays):
     counter = Counter()
     for review in array_of_arrays:
         counter.update(review)
-    # remove_uncommon_words(counter)
-    # remove_stop_words(counter)
+    remove_uncommon_words(counter)
+    remove_stop_words(counter)
     return counter
 
 
@@ -123,15 +123,19 @@ def calculate_error():
 
     print("Predicted correctly on: " + str(correct_pos_prediction) + " out of "
             + str(len(pos_reviews)) + " positive reviews")
-    print("Error rate for positive reviews: " + str(correct_pos_prediction /
+    print("Accuracy for positive reviews: " + str(correct_pos_prediction /
         len(pos_reviews)))
     print("Predicted correctly on: " + str(correct_neg_prediction) + " out of "
             + str(len(neg_reviews)) + " negative reviews")
     print("Error rate for negative reviews: " + str(correct_neg_prediction /
         len(neg_reviews)))
-    print("Overall error rate: ")
-    return ((correct_pos_prediction + correct_neg_prediction) /
-            (len(pos_reviews) + len(neg_reviews)))
+    print('Precision: ' + str(correct_pos_prediction / (correct_pos_prediction
+        + (len(neg_reviews) - correct_neg_prediction))))
+    print('Recall: ' + (str(correct_pos_prediction / (correct_pos_prediction +
+        (len(pos_reviews))
+        - correct_pos_prediction)))
+    print('Accuracy: ' + str((correct_pos_prediction + correct_neg_prediction) /
+            (len(pos_reviews) + len(neg_reviews))))
 
 
 if __name__ == '__main__':
@@ -155,8 +159,8 @@ if __name__ == '__main__':
     counter_neg_reviews = make_counter(neg_reviews)
 
     # This line  can be ccommented out if no changes has been made to the
-    # training model. This will decrease the run time.
-    save_loglikelihoods()
+    # training model. Doing so will decrease the run time.
+    # save_loglikelihoods()
 
     # Load loglikelihood for each word that is left in training set from file.
     pos_loglikelihood = load_obj('pos_loglikelihood')
@@ -165,5 +169,6 @@ if __name__ == '__main__':
     # Using Multinomial Naive Bayes to calculate prediction on 25k test
     # reviews. Prints error rate.
     print("Calculating test reviews ...")
-    print(calculate_error())
+    calculate_error()
+
 
