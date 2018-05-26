@@ -14,7 +14,13 @@ def get_logprior():
     return pos_logprior, neg_logprior
 
 
-def predict_review(review):
+def predict_review(*args):
+    review = ''
+    if args:
+        review = prepare_text(args)
+    else:
+        print('Write your review here: ')
+        review = prepare_text(input())
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
@@ -31,7 +37,17 @@ def predict_review(review):
         print('Something went very wrong when predicting class of: ' + review)
 
 
+def get_prediction(prediction):
+    result = 'Your review was calculated to be '
+    if prediction == 1:
+        result += 'positive'
+    else:
+        result += 'negative'
+    print(result)
+
+
 if __name__ == '__main__':
+    print('Please wait a second...')
     pos_loglikelihood = load_obj('pos_loglikelihood')
     neg_loglikelihood = load_obj('neg_loglikelihood')
 
@@ -39,5 +55,5 @@ if __name__ == '__main__':
 
     # print(predict_review(prepare_text("Such a terrible and bad movie.")))
 
-    print(predict_review(prepare_text(input())))
+    get_prediction(predict_review())
 

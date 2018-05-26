@@ -44,8 +44,8 @@ def make_counter(array_of_arrays):
     counter = Counter()
     for review in array_of_arrays:
         counter.update(review)
-    remove_uncommon_words(counter)
-    remove_stop_words(counter)
+    # remove_uncommon_words(counter)
+    # remove_stop_words(counter)
     return counter
 
 
@@ -90,9 +90,9 @@ def save_loglikelihoods():
     pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
     save_obj(pos_loglikelihood, 'pos_loglikelihood')
     save_obj(neg_loglikelihood, 'neg_loglikelihood')
-    
 
-def get_prediction(review, pos_loglikelihood, neg_loglikelihood):
+
+def get_prediction(review):
     pos_prediction = 0
     neg_prediction = 0
     for word in review:
@@ -114,11 +114,11 @@ def calculate_error():
     correct_neg_prediction = 0
 
     for review in pos_test_reviews:
-        if (get_prediction(review, pos_loglikelihood, neg_loglikelihood) == 1):
+        if (get_prediction(review) == 1):
             correct_pos_prediction += 1
 
     for review in neg_test_reviews:
-        if (get_prediction(review, pos_loglikelihood, neg_loglikelihood) == 0):
+        if (get_prediction(review) == 0):
             correct_neg_prediction += 1
 
     print("Predicted correctly on: " + str(correct_pos_prediction) + " out of "
@@ -154,9 +154,9 @@ if __name__ == '__main__':
     counter_pos_reviews = make_counter(pos_reviews)
     counter_neg_reviews = make_counter(neg_reviews)
 
-    # Uncomment to recalculate and save new values for loglikelihoods and words
-    # in counter_all_reviews.
-    # save_loglikelihoods()
+    # This line  can be ccommented out if no changes has been made to the
+    # training model. This will decrease the run time.
+    save_loglikelihoods()
 
     # Load loglikelihood for each word that is left in training set from file.
     pos_loglikelihood = load_obj('pos_loglikelihood')

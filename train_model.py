@@ -90,7 +90,7 @@ def save_loglikelihoods():
     pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
     save_obj(pos_loglikelihood, 'pos_loglikelihood')
     save_obj(neg_loglikelihood, 'neg_loglikelihood')
-    
+
 
 def get_prediction(review):
     pos_prediction = 0
@@ -154,9 +154,9 @@ if __name__ == '__main__':
     counter_pos_reviews = make_counter(pos_reviews)
     counter_neg_reviews = make_counter(neg_reviews)
 
-    # Uncomment to recalculate and save new values for loglikelihoods and words
-    # in counter_all_reviews.
-    # save_loglikelihoods()
+    # This line  can be ccommented out if no changes has been made to the
+    # training model. This will decrease the run time.
+    save_loglikelihoods()
 
     # Load loglikelihood for each word that is left in training set from file.
     pos_loglikelihood = load_obj('pos_loglikelihood')
