@@ -62,15 +62,16 @@ def get_word_weight():
 
 def get_loglikelihood():
     pos_word_weights, neg_word_weights = get_word_weight()
+    alpha = 12
     pos_loglikelihood = dict()
     neg_loglikelihood = dict()
     for word in counter_all_reviews:
         pos_loglikelihood[word] = math.log((counter_pos_reviews.get(word, 0) +
-            10) /
+            alpha) /
             pos_word_weights)
     for word in counter_all_reviews:
         neg_loglikelihood[word] = math.log((counter_neg_reviews.get(word, 0) +
-            10) /
+            alpha) /
             neg_word_weights)
     return pos_loglikelihood, neg_loglikelihood
 
@@ -105,7 +106,7 @@ def get_prediction(review):
     elif max(pos_prediction, neg_prediction) is neg_prediction:
         return 0
     else:
-        print('Something went very wrong when predicting class of: ' + review)
+        print('Something went wrong when predicting class of: ' + review)
 
 
 def calculate_error():
@@ -158,7 +159,7 @@ if __name__ == '__main__':
     counter_neg_reviews = make_counter(neg_reviews)
 
     # This line  can be ccommented out if no changes has been made to the
-    # training model. Doing so will decrease the run time.
+    # calculation of loglikelihoods. Doing so will decrease the run time.
     save_loglikelihoods()
 
     # Load loglikelihood for each word that is left in training set from file.

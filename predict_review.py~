@@ -18,10 +18,8 @@ def get_logprior():
 
 def predict_review(*args):
     review = ''
-    if sys.argv:
-        print('yaya')
+    if len(sys.argv) > 1:
         review = prepare_text(Path('reviews/' + str(sys.argv[1])).read_text())
-        print(review)
     else:
         print('Write your review here: ')
         review = prepare_text(input())
@@ -38,15 +36,17 @@ def predict_review(*args):
     elif max(pos_prediction, neg_prediction) is neg_prediction:
         return 0
     else:
-        print('Something went very wrong when predicting class of: ' + review)
+        return 'Something went very wrong when predicting class of: ' + review
 
 
 def get_prediction(prediction):
     result = 'Your review was calculated to be '
     if prediction == 1:
         result += 'positive'
-    else:
+    elif prediction == 0:
         result += 'negative'
+    else:
+        result += '... uncurtain'
     print(result)
 
 
