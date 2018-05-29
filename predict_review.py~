@@ -5,8 +5,13 @@ import sys
 
 
 def get_logprior():
-    pos_logprior = load_obj('pos_logprior')
-    neg_logprior = load_obj('neg_logprior')
+    pos_reviews = prepare_data('aclImdb/train/pos')
+    neg_reviews = prepare_data('aclImdb/train/neg')
+    all_reviews = pos_reviews + neg_reviews
+
+
+    pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
+    neg_logprior = math.log(len(neg_reviews) / len(all_reviews))
 
     return pos_logprior, neg_logprior
 

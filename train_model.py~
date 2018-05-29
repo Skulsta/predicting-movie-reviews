@@ -87,7 +87,10 @@ def load_obj(name):
 
 
 def save_model_values():
-
+    # Every review. Array of arrays. Punctuation removed. Everything is lower case.
+    pos_reviews = prepare_data('aclImdb/train/pos')
+    neg_reviews = prepare_data('aclImdb/train/neg')
+    all_reviews = pos_reviews + neg_reviews
 
     # Logprior. Probability of an arbritrary review being positive or negative. Using log.
     pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
@@ -150,11 +153,6 @@ def calculate_error():
 
 if __name__ == '__main__':
     stop_words = get_stop_words()
-
-    # Every review. Array of arrays. Punctuation removed. Everything is lower case.
-    pos_reviews = prepare_data('aclImdb/train/pos')
-    neg_reviews = prepare_data('aclImdb/train/neg')
-    all_reviews = pos_reviews + neg_reviews
 
     pos_test_reviews = prepare_data('aclImdb/test/pos')
     neg_test_reviews = prepare_data('aclImdb/test/neg')
