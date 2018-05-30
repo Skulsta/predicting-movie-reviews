@@ -87,20 +87,19 @@ def load_obj(name):
 
 
 def save_model_values():
-
-
     # Logprior. Probability of an arbritrary review being positive or negative. Using log.
     pos_logprior = math.log(len(pos_reviews) / len(all_reviews))
     neg_logprior = math.log(len(neg_reviews) / len(all_reviews))
-
-
-
-    pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
-    save_obj(pos_loglikelihood, 'pos_loglikelihood')
-    save_obj(neg_loglikelihood, 'neg_loglikelihood')
     save_obj(pos_logprior, 'pos_logprior')
     save_obj(neg_logprior, 'neg_logprior')
 
+    # Loglikelihoods. Looks at every word left in the training set and
+    # calculates a probability of the word occuring in positive and  negative
+    # reviews. Using log.
+    pos_loglikelihood, neg_loglikelihood = get_loglikelihood()
+    save_obj(pos_loglikelihood, 'pos_loglikelihood')
+    save_obj(neg_loglikelihood, 'neg_loglikelihood')
+    
 
 def get_prediction(review):
     pos_prediction = 0
